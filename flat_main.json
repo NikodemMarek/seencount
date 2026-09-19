@@ -1,0 +1,116 @@
+{
+    "type": "FeatureCollection",
+    "name": "Flat Main",
+    "properties": {
+        "beancount_id": "Assets:Locations:Flat-Main",
+        "origin": [
+            42.33163,
+            -100.81241
+        ],
+        "rotation": 45
+    },
+    "features": [
+        {
+            "type": "Feature",
+            "id": "Room-Bedroom",
+            "properties": {
+                "beancount_id": "Assets:Locations:Flat-Main:Room-Bedroom"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            0,
+                            2
+                        ],
+                        [
+                            5,
+                            2
+                        ],
+                        [
+                            5,
+                            0
+                        ],
+                        [
+                            0,
+                            0
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "Container-Wardrobe",
+            "properties": {
+                "beancount_id": "Assets:Locations:Flat-Main:Room-Bedroom:Container-Wardrobe"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            3,
+                            1.5
+                        ],
+                        [
+                            3,
+                            2
+                        ],
+                        [
+                            4.5,
+                            2
+                        ],
+                        [
+                            4.5,
+                            1.5
+                        ],
+                        [
+                            3,
+                            1.5
+                        ]
+                    ]
+                ]
+            }
+        },
+        {
+            "type": "Feature",
+            "id": "Other-Bed",
+            "properties": {
+                "name": "Bed"
+            },
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [
+                            0,
+                            0
+                        ],
+                        [
+                            3,
+                            0
+                        ],
+                        [
+                            3,
+                            1.2
+                        ],
+                        [
+                            0,
+                            1.2
+                        ],
+                        [
+                            0,
+                            0
+                        ]
+                    ]
+                ]
+            }
+        }
+    ]
+}

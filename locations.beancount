@@ -1,0 +1,25 @@
+2026-07-31 open Equity:Inventory:Tracking
+
+2026-07-31 open Assets:Locations:Flat-Main
+  type: "Flat"
+  country: "Nowhere"
+  city: "Nukecity"
+  street: "Fallout 77"
+  number: "21"
+  postal-code: "00-666"
+  ownership: "Owned"
+
+2026-07-31 open Assets:Locations:Flat-Main:Room-Bedroom
+  type: "Room"
+  name: "Bedroom"
+
+2026-07-31 open Assets:Locations:Flat-Main:Room-Bedroom:Container-Wardrobe
+  type: "Container"
+  name: "Wardrobe"
+
+2004-07-31 commodity BED
+
+2026-07-31 * "Track bed"
+  Assets:Locations:Flat-Main:Room-Bedroom 1 BED
+    size: "Single"
+  Equity:Inventory:Tracking
