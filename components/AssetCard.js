@@ -1,6 +1,6 @@
 import { AssetItemCard } from './AssetItemCard.js';
 
-export class AssetDrawer extends HTMLElement {
+export class AssetCard extends HTMLElement {
     constructor() {
         super();
         this.attachShadow({ mode: 'open' });
@@ -38,44 +38,24 @@ export class AssetDrawer extends HTMLElement {
                 card.setItem(item);
                 listEl.appendChild(card);
             });
-        }
-
-        const panel = this.shadowRoot.querySelector('.side-panel');
-        if (panel) panel.classList.remove('hidden');
-    }
-
-    close() {
-        const panel = this.shadowRoot.querySelector('.side-panel');
-        if (panel) panel.classList.add('hidden');
+        };
     }
 
     render() {
         this.shadowRoot.innerHTML = `
             <style>
-                .side-panel {
-                    position: fixed;
-                    top: 16px;
-                    right: 16px;
-                    bottom: 16px;
-                    width: 360px;
-                    max-width: calc(100vw - 32px);
+                .card {
                     background: rgba(30, 41, 59, 0.95);
                     backdrop-filter: blur(16px);
                     -webkit-backdrop-filter: blur(16px);
                     border: 1px solid #334155;
                     border-radius: 16px;
                     box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
-                    z-index: 1500;
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
                     transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                }
-                .side-panel.hidden {
-                    transform: translateX(390px);
-                    opacity: 0;
-                    pointer-events: none;
                 }
                 .panel-header {
                     padding: 20px;
@@ -180,7 +160,7 @@ export class AssetDrawer extends HTMLElement {
                     font-size: 14px;
                 }
             </style>
-            <div class="side-panel hidden">
+            <div class="card">
                 <div class="panel-header">
                     <div class="panel-title-container">
                         <span class="panel-type-badge" id="panel-type-badge">Location</span>
@@ -202,8 +182,11 @@ export class AssetDrawer extends HTMLElement {
         `;
 
         this.shadowRoot.querySelector('#close-panel-btn').addEventListener('click', () => {
-            this.close();
+            this.dispatchEvent(new CustomEvent("close-card", {
+                bubbles: true,
+                cancelable: true,
+            }));
         });
     }
 }
-customElements.define('asset-drawer', AssetDrawer);
+customElements.define('asset-card', AssetCard);

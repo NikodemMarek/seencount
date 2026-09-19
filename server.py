@@ -88,8 +88,9 @@ ALLOWED_STATIC_FILES = {
     "/components/LocationItem.js",
     "/components/LocationSelector.js",
     "/components/BottomBar.js",
+    "/components/SidePanel.js",
     "/components/AssetItemCard.js",
-    "/components/AssetDrawer.js",
+    "/components/AssetCard.js",
     "/components/AssetMap.js",
 }
 
