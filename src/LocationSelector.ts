@@ -1,71 +1,72 @@
-import { LocationItem } from './LocationItem.js';
+import { LocationItem } from './LocationItem';
+
+import { BeancountLocation } from './script';
 
 export class LocationSelector extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    private _locations: BeancountLocation[] = [];
+    private _selectedLocation: BeancountLocation | null = null;
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
-        this.selectedLocation = null;
+        this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    connectedCallback() {
+
+    set locations(locations: BeancountLocation[]) {
+        this._locations = locations;
         this.render();
     }
 
-    setLocations(locations) {
-        const listContainer = this.shadowRoot.querySelector('#locations-list');
-        const previewBtn = this.shadowRoot.querySelector('#preview-btn');
-        if (!listContainer) return;
+    private dispatchLocationSelected(location: BeancountLocation): void {
+        this.dispatchEvent(new CustomEvent('location-selected', {
+            detail: { location },
+            bubbles: true,
+            composed: true
+        }));
+    }
+
+    private render(): void {
+        const listContainer = this.shadow.querySelector('#locations-list')!;
+        const previewBtn = this.shadow.querySelector<HTMLButtonElement>('#preview-btn')!;
+        if (!listContainer || !previewBtn) return;
 
         listContainer.innerHTML = '';
-
-        if (!locations || locations.length === 0) {
+        if (this._locations.length === 0) {
             listContainer.innerHTML = '<div class="empty-state">No locations available</div>';
             previewBtn.disabled = true;
             return;
         }
 
-        locations.forEach((loc, index) => {
-            const item = document.createElement('location-item');
-            item.setLocation(loc);
+        this._locations.forEach((loc, index) => {
+            const item  = document.createElement('location-item') as LocationItem;
+            item.location = loc;
 
             item.addEventListener('click', () => {
-                this.shadowRoot.querySelectorAll('location-item').forEach(el => el.setSelected(false));
-                item.setSelected(true);
-                this.selectedLocation = loc;
+                this.shadow.querySelectorAll('location-item').forEach(el => el.selected = false);
+                item.selected = true;
+                this._selectedLocation = loc;
                 previewBtn.disabled = false;
             });
 
             item.addEventListener('dblclick', () => {
-                this.selectedLocation = loc;
-                this.dispatchEvent(new CustomEvent('location-selected', {
-                    detail: { location: this.selectedLocation },
-                    bubbles: true,
-                    composed: true
-                }));
+                this._selectedLocation = loc;
+                this.dispatchLocationSelected(this._selectedLocation)
             });
 
             listContainer.appendChild(item);
 
             if (index === 0) {
-                item.setSelected(true);
-                this.selectedLocation = loc;
+                item.selected = true;
+                this._selectedLocation = loc;
                 previewBtn.disabled = false;
             }
         });
     }
 
-    show() {
-        const overlay = this.shadowRoot.querySelector('.overlay');
-        if (overlay) overlay.classList.remove('hidden');
-    }
-
-    hide() {
-        const overlay = this.shadowRoot.querySelector('.overlay');
-        if (overlay) overlay.classList.add('hidden');
-    }
-
-    render() {
-        this.shadowRoot.innerHTML = `
+    connectedCallback(): void {
+        this.shadow.innerHTML = `
             <style>
                 .overlay {
                     position: fixed;
@@ -85,11 +86,6 @@ export class LocationSelector extends HTMLElement {
                     visibility: visible;
                     transition: opacity 0.3s ease, visibility 0.3s ease;
                     font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-                }
-                .overlay.hidden {
-                    opacity: 0;
-                    visibility: hidden;
-                    pointer-events: none;
                 }
                 .modal-card {
                     background: #1e293b;
@@ -180,15 +176,21 @@ export class LocationSelector extends HTMLElement {
             </div>
         `;
 
-        this.shadowRoot.querySelector('#preview-btn').addEventListener('click', () => {
-            if (this.selectedLocation) {
-                this.dispatchEvent(new CustomEvent('location-selected', {
-                    detail: { location: this.selectedLocation },
-                    bubbles: true,
-                    composed: true
-                }));
+        const previewBtn = this.shadow.querySelector<HTMLButtonElement>('#preview-btn');
+        previewBtn?.addEventListener('click', () => {
+            if (this._selectedLocation) {
+                this.dispatchLocationSelected(this._selectedLocation)
             }
         });
+
+        this.render();
     }
 }
+
 customElements.define('location-selector', LocationSelector);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'location-selector': LocationSelector;
+  }
+}

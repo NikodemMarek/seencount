@@ -14,11 +14,19 @@ body, html {
 }
 
 /* Custom Web Component Tags Layout */
+app-root {
+    display: block;
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
 asset-map {
     display: block;
     width: 100%;
     height: 100%;
 }
+
 
 top-bar, location-selector, asset-drawer, location-item, asset-item-card {
     display: block;
