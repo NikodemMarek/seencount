@@ -1,28 +1,38 @@
+import { BeancountLocation } from "./script";
+
 export class LocationItem extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    private _locationData: BeancountLocation | null = null;
+    private _isSelected: boolean = false;
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
-        this.locationData = null;
+        this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    setLocation(location) {
-        this.locationData = location;
+    set location(data: BeancountLocation) {
+        this._locationData = data;
+        this.render();
+    }
+    set selected(value: boolean) {
+        this._isSelected = value;
         this.render();
     }
 
-    setSelected(isSelected) {
-        const item = this.shadowRoot.querySelector('.location-item');
-        if (!item) return;
-        if (isSelected) {
-            item.classList.add('selected');
-        } else {
-            item.classList.remove('selected');
-        }
-    }
+    private render(): void {
+        const item = this.shadow.querySelector('.location-item');
+        const itemName = this.shadow.querySelector('.location-name');
+        const itemFile = this.shadow.querySelector('.location-file');
+        if (!item || !itemName || !itemFile) return;
 
-    render() {
-        if (!this.locationData) return;
-        this.shadowRoot.innerHTML = `
+        item.classList.toggle('selected', this._isSelected);
+        itemName.textContent = this._locationData?.name || 'unknown';
+        itemFile.textContent = this._locationData?.filename || 'unknown';
+      }
+
+    connectedCallback(): void {
+        this.shadow.innerHTML = `
             <style>
                 .location-item {
                     display: flex;
@@ -94,13 +104,22 @@ export class LocationItem extends HTMLElement {
                 <div class="location-info">
                     <div class="location-icon">🏠</div>
                     <div class="location-details">
-                        <span class="location-name">${this.locationData.name}</span>
-                        <span class="location-file">${this.locationData.filename}</span>
+                        <span class="location-name"></span>
+                        <span class="location-file"></span>
                     </div>
                 </div>
                 <span class="badge">GeoJSON</span>
             </div>
         `;
+
+        this.render();
     }
 }
+
 customElements.define('location-item', LocationItem);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'location-item': LocationItem;
+  }
+}

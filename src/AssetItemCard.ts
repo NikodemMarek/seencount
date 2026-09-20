@@ -1,18 +1,32 @@
+import { LocationContent } from "./script";
+
 export class AssetItemCard extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    private _item: LocationContent | null = null;
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
-        this.itemData = null;
+        this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    setItem(item) {
-        this.itemData = item;
+    set item(item: LocationContent) {
+        this._item = item;
         this.render();
     }
 
-    render() {
-        if (!this.itemData) return;
-        this.shadowRoot.innerHTML = `
+    private render() {
+        const itemName = this.shadow.querySelector('.item-name');
+        const itemQuantityBadge = this.shadow.querySelector('.item-qty-badge');
+        if (!itemName || !itemQuantityBadge) return;
+
+        const name = this._item?.asset || 'Asset';
+        itemName.textContent = name;
+        itemQuantityBadge.textContent = `${this._item?.quantity || '?'} ${name}`;
+    }
+
+    connectedCallback(): void {
+        this.shadow.innerHTML = `
             <style>
                 .item-card {
                     display: flex;
@@ -62,11 +76,20 @@ export class AssetItemCard extends HTMLElement {
             <div class="item-card">
                 <div class="item-info">
                     <div class="item-icon">📦</div>
-                    <span class="item-name">${this.itemData.asset}</span>
+                    <span class="item-name"></span>
                 </div>
-                <span class="item-qty-badge">${this.itemData.quantity} ${this.itemData.asset}</span>
+                <span class="item-qty-badge"></span>
             </div>
         `;
+
+        this.render();
     }
 }
+
 customElements.define('asset-item-card', AssetItemCard);
+
+declare global {
+    interface HTMLElementTagNameMap {
+        'asset-item-card': AssetItemCard;
+    }
+}

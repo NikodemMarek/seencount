@@ -1,32 +1,39 @@
-import { AssetItemCard } from './AssetItemCard.js';
+import { AssetItemCard } from './AssetItemCard';
+import { Metadata } from './script';
 
 export class AssetCard extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    private _metadata: Metadata | null = null;
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
+        this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    connectedCallback() {
+    set metadata(metadata: Metadata) {
+        this._metadata = metadata;
         this.render();
     }
 
-    open(metadata) {
-        const titleEl = this.shadowRoot.querySelector('#panel-title');
-        const subtitleEl = this.shadowRoot.querySelector('#panel-subtitle');
-        const badgeEl = this.shadowRoot.querySelector('#panel-type-badge');
-        const countEl = this.shadowRoot.querySelector('#panel-contents-count');
-        const listEl = this.shadowRoot.querySelector('#panel-contents-list');
+    private render() {
+        const titleEl = this.shadow.querySelector('#panel-title');
+        const subtitleEl = this.shadow.querySelector('#panel-subtitle');
+        const badgeEl = this.shadow.querySelector('#panel-type-badge');
+        const countEl = this.shadow.querySelector('#panel-contents-count');
+        const listEl = this.shadow.querySelector('#panel-contents-list');
+        if (!titleEl || !subtitleEl || !badgeEl || !countEl || !listEl) return;
 
-        const name = metadata?.name || '';
-        const type = metadata?.type || '';
-        const id = metadata?.id || '';
+        const name = this._metadata?.name || 'Asset';
+        const type = this._metadata?.type || 'Asset';
+        const id = this._metadata?.id || '';
 
         titleEl.textContent = name;
         subtitleEl.textContent = id;
         badgeEl.textContent = type;
-        badgeEl.className = `panel-type-badge ${type.toLowerCase()}`;
+        badgeEl.classList.add(type.toLowerCase());
 
-        const contents = metadata?.contents || [];
+        const contents = this._metadata?.contents || [];
         countEl.textContent = `${contents.length} ${contents.length === 1 ? 'item' : 'items'}`;
         listEl.innerHTML = '';
 
@@ -34,15 +41,15 @@ export class AssetCard extends HTMLElement {
             listEl.innerHTML = '<div class="empty-state">No items stored in this location</div>';
         } else {
             contents.forEach(item => {
-                const card = document.createElement('asset-item-card');
-                card.setItem(item);
-                listEl.appendChild(card);
+                const itemCard = document.createElement('asset-item-card') as AssetItemCard;
+                itemCard.item = item;
+                listEl.appendChild(itemCard);
             });
         };
     }
 
-    render() {
-        this.shadowRoot.innerHTML = `
+    connectedCallback() {
+        this.shadow.innerHTML = `
             <style>
                 .card {
                     background: rgba(30, 41, 59, 0.95);
@@ -181,12 +188,22 @@ export class AssetCard extends HTMLElement {
             </div>
         `;
 
-        this.shadowRoot.querySelector('#close-panel-btn').addEventListener('click', () => {
+        this.shadow.querySelector('#close-panel-btn')?.addEventListener('click', () => {
             this.dispatchEvent(new CustomEvent("close-card", {
                 bubbles: true,
                 cancelable: true,
             }));
         });
+
+        this.render();
     }
+
 }
+
 customElements.define('asset-card', AssetCard);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'asset-card': AssetCard;
+  }
+}

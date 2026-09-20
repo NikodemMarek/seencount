@@ -1,22 +1,27 @@
 export class BottomBar extends HTMLElement {
+    private shadow: ShadowRoot;
+
+    private _location: string = 'None';
+
     constructor() {
         super();
-        this.attachShadow({ mode: 'open' });
+        this.shadow = this.attachShadow({ mode: 'open' });
+    }
+
+    set location(location: string) {
+        this._location = location;
+        this.render()
+    }
+
+    private render() {
+        const label = this.shadow.querySelector('#current-location-label');
+        if (!label) return;
+
+        label.textContent = `📍 ${this._location}`;
     }
 
     connectedCallback() {
-        this.render();
-    }
-
-    setActiveLocation(name) {
-        const label = this.shadowRoot.querySelector('#current-location-label');
-        const container = this.shadowRoot.querySelector('.bottom-bar');
-        if (label) label.textContent = `📍 ${name}`;
-        if (container) container.style.display = 'flex';
-    }
-
-    render() {
-        this.shadowRoot.innerHTML = `
+        this.shadow.innerHTML = `
             <style>
                 .bottom-bar {
                     position: absolute;
@@ -61,18 +66,28 @@ export class BottomBar extends HTMLElement {
                     border-color: #64748b;
                 }
             </style>
-            <div class="bottom-bar" style="display: none;">
-                <span class="active-location-name" id="current-location-label">📍 None</span>
+            <div class="bottom-bar">
+                <span class="active-location-name" id="current-location-label"></span>
                 <button id="change-location-btn" class="btn-secondary">Change Location</button>
             </div>
         `;
 
-        this.shadowRoot.querySelector('#change-location-btn').addEventListener('click', () => {
+        this.shadow.querySelector('#change-location-btn')?.addEventListener('click', () => {
             this.dispatchEvent(new CustomEvent('change-location', {
                 bubbles: true,
                 composed: true
             }));
         });
+
+        this.render();
     }
+
 }
+
 customElements.define('bottom-bar', BottomBar);
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'bottom-bar': BottomBar;
+  }
+}
