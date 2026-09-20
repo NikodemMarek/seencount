@@ -4,6 +4,7 @@ export class AssetItemCard extends HTMLElement {
     private shadow: ShadowRoot;
 
     private _item: LocationContent | null = null;
+    private _ghost: boolean = false;
 
     constructor() {
         super();
@@ -13,6 +14,10 @@ export class AssetItemCard extends HTMLElement {
     set item(item: LocationContent) {
         this._item = item;
         this.render();
+    }
+    set ghost(ghost: boolean) {
+        this._ghost = ghost;
+        this.toggleAttribute('ghost', ghost);
     }
 
     private render() {
@@ -28,6 +33,16 @@ export class AssetItemCard extends HTMLElement {
     connectedCallback(): void {
         this.shadow.innerHTML = `
             <style>
+                :host {
+                    display: block;
+                    transition: opacity 0.2s ease, filter 0.2s ease;
+                }
+                :host([ghost]) {
+                    opacity: 0.5;
+                    filter: brightness(0.7) saturate(0.5);
+                    pointer-events: none;
+                    cursor: default;
+                }
                 .item-card {
                     display: flex;
                     align-items: center;
