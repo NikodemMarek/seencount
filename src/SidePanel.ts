@@ -1,24 +1,24 @@
 import { AssetCard } from './AssetCard';
-import { Metadata } from './script';
+import { Asset } from './script';
 
 export class SidePanel extends HTMLElement {
     private shadow: ShadowRoot;
 
-    private _data: Metadata[] = [];
+    private _assets: Asset[] = [];
 
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    set data(data: Metadata[]) {
-        this._data = data;
+    set assets(assets: Asset[]) {
+        this._assets = assets;
         this.render();
     }
 
-    private dispatchCloseCard(data: Metadata) {
+    private dispatchCloseCard(asset: Asset) {
         this.dispatchEvent(new CustomEvent('close-card', {
-            detail: data,
+            detail: asset,
             bubbles: true,
             cancelable: true
         }));
@@ -28,13 +28,13 @@ export class SidePanel extends HTMLElement {
         const sidePanel = this.shadow.querySelector('.side-panel');
         if (!sidePanel) return;
 
-        const elements = this._data.map(metadata => {
-            const item = document.createElement('asset-card') as AssetCard;
-            item.metadata = metadata;
-            item.addEventListener('close-card', () => {
+        const elements = this._assets.map(metadata => {
+            const assetCard = document.createElement('asset-card') as AssetCard;
+            assetCard.asset = metadata;
+            assetCard.addEventListener('close-card', () => {
                 this.dispatchCloseCard(metadata);
             }, { once: true });
-            return item;
+            return assetCard;
         });
         sidePanel.replaceChildren(...elements);
     }

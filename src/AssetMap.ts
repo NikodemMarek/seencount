@@ -1,5 +1,5 @@
 declare var L: typeof import('leaflet');
-import { Metadata } from './script';
+import { Asset, isContainer } from './script';
 
 const METERS_PER_DEGREE = 111320;
 
@@ -53,7 +53,7 @@ function scaleGeoJsonObject(geojson: any) {
     return scaled;
 }
 
-function getStyle(metadata: Metadata | null) {
+function getStyle(metadata: Asset | null) {
     if (!metadata) {
         return {
             color: '#eba0ac',
@@ -85,7 +85,7 @@ function getStyle(metadata: Metadata | null) {
     }
 }
 
-function getLabel(metadata: Metadata) {
+function getLabel(metadata: Asset) {
     switch (metadata.type) {
         case "Flat":
             return ``;
@@ -98,11 +98,11 @@ function getLabel(metadata: Metadata) {
     }
 }
 
-function createPopup(metadata: Metadata) {
+function createPopup(metadata: Asset) {
     const label = getLabel(metadata);
-    const contents = (!metadata.contents || metadata.contents.length === 0)
-        ? 'Empty'
-        : `Contains: ${metadata.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`;
+    const contents = isContainer(metadata) && metadata.contents.length !== 0
+        ? `Contains: ${metadata.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
+        : 'Empty';
 
     return `<div class="popup-title"><div class="popup-detail">${label}<br>${contents}</div></div>`;
 }
@@ -112,14 +112,14 @@ export class AssetMap extends HTMLElement {
     private _currentGeoJsonLayer: L.GeoJSON | null = null;
     private resizeObserver: ResizeObserver | null = null;
 
-    private _locationsMetadata: Metadata[] = [];
+    private _locationsMetadata: Asset[] = [];
     private _geojson: any = null;
 
     constructor() {
         super();
     }
 
-    set locationsMetadata(metadata: Metadata[]) {
+    set locationsMetadata(metadata: Asset[]) {
         this._locationsMetadata = metadata;
         this.renderGeoJson();
     }

@@ -1,7 +1,7 @@
 import { AssetMap } from './AssetMap';
 import { LocationSelector } from './LocationSelector';
 import { BottomBar } from './BottomBar';
-import { BeancountLocation, Metadata } from './script';
+import { BeancountLocation, Asset } from './script';
 import { SidePanel } from './SidePanel';
 
 async function fetchLocations(): Promise<BeancountLocation[]> {
@@ -9,7 +9,7 @@ async function fetchLocations(): Promise<BeancountLocation[]> {
     return res.json();
 }
 
-async function fetchMetadata(): Promise<Metadata[]> {
+async function fetchAssets(): Promise<Asset[]> {
     const res = await fetch('/metadata');
     return res.json();
 }
@@ -26,8 +26,8 @@ export class AppRoot extends HTMLElement {
     private _sidePanel: SidePanel | null = null;
 
     private _locations: BeancountLocation[] = [];
-    private _metadata: Metadata[] = [];
-    private _selectedLocations: Metadata[] = [];
+    private _metadata: Asset[] = [];
+    private _selectedAssets: Asset[] = [];
 
     connectedCallback(): void {
         this.style.display = 'block';
@@ -38,8 +38,8 @@ export class AppRoot extends HTMLElement {
         this._assetMap = document.createElement('asset-map') as AssetMap;
         this.appendChild(this._assetMap);
         this._assetMap.addEventListener('select-object', (ev) => {
-            const metadata = (ev as CustomEvent<Metadata>).detail;
-            this.addSelectedLocation(metadata);
+            const metadata = (ev as CustomEvent<Asset>).detail;
+            this.addSelectedAsset(metadata);
         });
 
         this.init();
@@ -54,9 +54,9 @@ export class AppRoot extends HTMLElement {
     private async init(): Promise<void> {
         const [locations, metadata] = await Promise.all([
             fetchLocations(),
-            fetchMetadata().catch((err) => {
+            fetchAssets().catch((err) => {
                 console.warn('Failed to fetch beancount metadata:', err);
-                return [] as Metadata[];
+                return [] as Asset[];
             })
         ]);
 
@@ -84,17 +84,17 @@ export class AppRoot extends HTMLElement {
         }, { once: true });
     }
 
-    private addSelectedLocation(metadata: Metadata) {
-        const exists = this._selectedLocations.some(item => item.id === metadata.id);
+    private addSelectedAsset(asset: Asset) {
+        const exists = this._selectedAssets.some(item => item.id === asset.id);
         if (exists) return;
 
-        this._selectedLocations.push(metadata);
-        this._sidePanel!.data = this._selectedLocations;
+        this._selectedAssets.push(asset);
+        this._sidePanel!.assets = this._selectedAssets;
     }
 
-    private removeSelectedLocation(id: string) {
-        this._selectedLocations = this._selectedLocations.filter(item => item.id !== id);
-        this._sidePanel!.data = this._selectedLocations;
+    private removeSelectedAsset(id: string) {
+        this._selectedAssets = this._selectedAssets.filter(item => item.id !== id);
+        this._sidePanel!.assets = this._selectedAssets;
     }
 
     private showSidePanel(): void {
@@ -103,8 +103,8 @@ export class AppRoot extends HTMLElement {
         this.appendChild(sidePanel);
 
         sidePanel.addEventListener('close-card', (ev) => {
-            const data = (ev as CustomEvent<Metadata>).detail;
-            this.removeSelectedLocation(data.id);
+            const asset = (ev as CustomEvent<Asset>).detail;
+            this.removeSelectedAsset(asset.id);
         });
     }
 
@@ -132,7 +132,7 @@ export class AppRoot extends HTMLElement {
 
             this._sidePanel?.remove();
             this._sidePanel = null;
-            this._selectedLocations = [];
+            this._selectedAssets = [];
 
             this.showLocationSelector();
         }, { once: true });

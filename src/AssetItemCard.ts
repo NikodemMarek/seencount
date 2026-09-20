@@ -1,9 +1,9 @@
-import { LocationContent } from "./script";
+import { AssetContent } from "./script";
 
 export class AssetItemCard extends HTMLElement {
     private shadow: ShadowRoot;
 
-    private _item: LocationContent | null = null;
+    private _content: AssetContent | null = null;
     private _ghost: boolean = false;
 
     constructor() {
@@ -11,8 +11,8 @@ export class AssetItemCard extends HTMLElement {
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    set item(item: LocationContent) {
-        this._item = item;
+    set content(content: AssetContent) {
+        this._content = content;
         this.render();
     }
     set ghost(ghost: boolean) {
@@ -25,9 +25,9 @@ export class AssetItemCard extends HTMLElement {
         const itemQuantityBadge = this.shadow.querySelector('.item-qty-badge');
         if (!itemName || !itemQuantityBadge) return;
 
-        const name = this._item?.asset || 'Asset';
+        const name = this._content?.asset || 'Asset';
         itemName.textContent = name;
-        itemQuantityBadge.textContent = `${this._item?.quantity || '?'} ${name}`;
+        itemQuantityBadge.textContent = `${this._content?.quantity || '?'} ${name}`;
     }
 
     connectedCallback(): void {
