@@ -84,14 +84,7 @@ ALLOWED_STATIC_FILES = {
     "/index.html",
     "/script.js",
     "/style.css",
-    "/favicon.ico",
-    "/components/LocationItem.js",
-    "/components/LocationSelector.js",
-    "/components/BottomBar.js",
-    "/components/SidePanel.js",
-    "/components/AssetItemCard.js",
-    "/components/AssetCard.js",
-    "/components/AssetMap.js",
+    "/favicon.ico"
 }
 
 class CustomHandler(SimpleHTTPRequestHandler):
