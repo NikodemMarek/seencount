@@ -1,17 +1,17 @@
 import { AssetItemCard } from "./AssetItemCard";
-import { LocationContent } from "./script";
+import { AssetContent } from "./script";
 
 export class AssetContentsList extends HTMLElement {
     private shadow: ShadowRoot;
 
-    private _contents: LocationContent[] = [];
+    private _contents: AssetContent[] = [];
 
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    set contents(contents: LocationContent[]) {
+    set contents(contents: AssetContent[]) {
         this._contents = contents;
         this.render();
     }
@@ -29,9 +29,9 @@ export class AssetContentsList extends HTMLElement {
             listEl.innerHTML = '';
         } else {
             emptyStateEl.classList.add('hidden');
-            const items = this._contents.map(item => {
+            const items = this._contents.map(content => {
                 const itemCard = document.createElement('asset-item-card') as AssetItemCard;
-                itemCard.item = item;
+                itemCard.content = content;
                 return itemCard;
             });
 

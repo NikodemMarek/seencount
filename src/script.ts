@@ -1,12 +1,12 @@
-import './AppRoot';
-import './LocationSelector';
-import './LocationItem';
-import './AssetMap';
-import './BottomBar';
-import './AssetItemCard';
-import './AssetCard';
-import './AssetContentsList';
-import './SidePanel';
+import './AppRoot.ts';
+import './AssetCard.ts';
+import './AssetContentsList.ts';
+import './AssetItemCard.ts';
+import './AssetMap.ts';
+import './BottomBar.ts';
+import './LocationItem.ts';
+import './LocationSelector.ts';
+import './SidePanel.ts';
 
 export type BeancountLocation = {
     beancount_id: string;
@@ -15,16 +15,26 @@ export type BeancountLocation = {
     data: any;
 };
 
-export type MetadataType = 'Flat' | 'Room' | 'Container' | 'Asset';
+export type AssetType = 'Flat' | 'Room' | 'Container' | 'Asset';
 
-export type LocationContent = {
+export type AssetContent = {
     asset: string;
     quantity: number;
 };
 
-export type Metadata = {
+export type Asset = BasicAsset | ContainerAsset;
+export type BasicAsset = {
+    type: AssetType;
     id: string;
-    type: MetadataType;
     name?: string;
-    contents: LocationContent[];
 };
+export type ContainerAsset = {
+    type: AssetType;
+    id: string;
+    name: string;
+    contents: AssetContent[];
+};
+
+export function isContainer(asset: Asset): asset is ContainerAsset {
+    return asset.type === 'Flat' || asset.type === 'Room' || asset.type === 'Container'
+}

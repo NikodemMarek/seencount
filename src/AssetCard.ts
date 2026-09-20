@@ -1,39 +1,42 @@
-import { AssetContentsList } from './AssetContentsList';
-import { AssetItemCard } from './AssetItemCard';
-import { Metadata } from './script';
+import { Asset, isContainer } from './script';
 
 export class AssetCard extends HTMLElement {
     private shadow: ShadowRoot;
 
-    private _metadata: Metadata | null = null;
+    private _asset: Asset | null = null;
 
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
-    set metadata(metadata: Metadata) {
-        this._metadata = metadata;
+    set asset(asset: Asset) {
+        this._asset = asset;
         this.render();
     }
 
     private render() {
+        if (!this._asset) return;
+
         const titleEl = this.shadow.querySelector('#panel-title');
         const subtitleEl = this.shadow.querySelector('#panel-subtitle');
         const badgeEl = this.shadow.querySelector('#panel-type-badge');
         const contentsListEl = this.shadow.querySelector('asset-contents-list');
         if (!titleEl || !subtitleEl || !badgeEl || !contentsListEl) return;
 
-        const name = this._metadata?.name || 'Asset';
-        const type = this._metadata?.type || 'Asset';
-        const id = this._metadata?.id || '';
-
+        const name = this._asset?.name || "Asset";
         titleEl.textContent = name;
-        subtitleEl.textContent = id;
-        badgeEl.textContent = type;
-        badgeEl.classList.add(type.toLowerCase());
 
-        contentsListEl.contents = this._metadata?.contents || [];
+        subtitleEl.textContent = this._asset.id;
+        badgeEl.textContent = this._asset.type;
+        badgeEl.classList.add(this._asset.type.toLowerCase());
+
+        if (isContainer(this._asset)) {
+            contentsListEl.classList.remove('hidden');
+            contentsListEl.contents = this._asset.contents;
+        } else {
+            contentsListEl.classList.add('hidden');
+        }
     }
 
     connectedCallback() {
@@ -117,6 +120,9 @@ export class AssetCard extends HTMLElement {
                 .close-btn:hover {
                     background: #475569;
                     color: #ffffff;
+                }
+                asset-contents-list.hidden {
+                    display: none;
                 }
             </style>
             <div class="card">
