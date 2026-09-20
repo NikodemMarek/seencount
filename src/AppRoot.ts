@@ -3,6 +3,7 @@ import { LocationSelector } from './LocationSelector';
 import { BottomBar } from './BottomBar';
 import { BeancountLocation, Asset } from './script';
 import { SidePanel } from './SidePanel';
+import { AssetsService } from './AssetsService';
 
 async function fetchLocations(): Promise<BeancountLocation[]> {
     const res = await fetch('/locations');
@@ -20,13 +21,14 @@ async function fetchGeoJson(source: string): Promise<any> {
 }
 
 export class AppRoot extends HTMLElement {
+    private as = AssetsService.instance;
+
     private _assetMap: AssetMap | null = null;
     private _locationSelector: LocationSelector | null = null;
     private _bottomBar: BottomBar | null = null;
     private _sidePanel: SidePanel | null = null;
 
     private _locations: BeancountLocation[] = [];
-    private _metadata: Asset[] = [];
     private _selectedAssets: Asset[] = [];
 
     connectedCallback(): void {
@@ -45,6 +47,13 @@ export class AppRoot extends HTMLElement {
         this.init();
     }
 
+    set selectedAssets(selectedAssets: Asset[]) {
+        this._selectedAssets = selectedAssets;
+        if (this._sidePanel) {
+            this._sidePanel.assets = selectedAssets;
+        }
+    }
+
     disconnectedCallback(): void {
         this._locationSelector?.remove();
         this._bottomBar?.remove();
@@ -52,7 +61,7 @@ export class AppRoot extends HTMLElement {
     }
 
     private async init(): Promise<void> {
-        const [locations, metadata] = await Promise.all([
+        const [locations, assets] = await Promise.all([
             fetchLocations(),
             fetchAssets().catch((err) => {
                 console.warn('Failed to fetch beancount metadata:', err);
@@ -61,7 +70,7 @@ export class AppRoot extends HTMLElement {
         ]);
 
         this._locations = locations;
-        this._metadata = metadata;
+        this.as.assets = assets;
 
         this.showLocationSelector();
     }
@@ -88,19 +97,23 @@ export class AppRoot extends HTMLElement {
         const exists = this._selectedAssets.some(item => item.id === asset.id);
         if (exists) return;
 
-        this._selectedAssets.push(asset);
-        this._sidePanel!.assets = this._selectedAssets;
+        this.selectedAssets = this._selectedAssets.concat(asset);
     }
 
     private removeSelectedAsset(id: string) {
-        this._selectedAssets = this._selectedAssets.filter(item => item.id !== id);
-        this._sidePanel!.assets = this._selectedAssets;
+        this.selectedAssets = this._selectedAssets.filter(item => item.id !== id);
     }
 
     private showSidePanel(): void {
         const sidePanel = document.createElement('side-panel') as SidePanel;
         this._sidePanel = sidePanel;
         this.appendChild(sidePanel);
+
+        AssetsService.onChange(() => {
+            this.selectedAssets = this._selectedAssets
+                .map(({ id }) => this.as.getAssetById(id))
+                .filter(a => !!a);
+        });
 
         sidePanel.addEventListener('close-card', (ev) => {
             const asset = (ev as CustomEvent<Asset>).detail;
@@ -112,7 +125,7 @@ export class AppRoot extends HTMLElement {
         const geojson = await fetchGeoJson(location.filename);
 
         if (this._assetMap) {
-            this._assetMap.locationsMetadata = this._metadata;
+            this._assetMap.locationsMetadata = this.as.assets;
             this._assetMap.geojson = geojson;
         }
 

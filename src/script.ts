@@ -3,6 +3,7 @@ import './AssetCard.ts';
 import './AssetContentsList.ts';
 import './AssetItemCard.ts';
 import './AssetMap.ts';
+import './AssetsService';
 import './BottomBar.ts';
 import './LocationItem.ts';
 import './LocationSelector.ts';
