@@ -5,6 +5,7 @@ import './AssetMap';
 import './BottomBar';
 import './AssetItemCard';
 import './AssetCard';
+import './AssetContentsList';
 import './SidePanel';
 
 export type BeancountLocation = {
