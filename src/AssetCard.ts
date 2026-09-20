@@ -1,3 +1,4 @@
+import { AssetContentsList } from './AssetContentsList';
 import { AssetItemCard } from './AssetItemCard';
 import { Metadata } from './script';
 
@@ -20,9 +21,8 @@ export class AssetCard extends HTMLElement {
         const titleEl = this.shadow.querySelector('#panel-title');
         const subtitleEl = this.shadow.querySelector('#panel-subtitle');
         const badgeEl = this.shadow.querySelector('#panel-type-badge');
-        const countEl = this.shadow.querySelector('#panel-contents-count');
-        const listEl = this.shadow.querySelector('#panel-contents-list');
-        if (!titleEl || !subtitleEl || !badgeEl || !countEl || !listEl) return;
+        const contentsListEl = this.shadow.querySelector('asset-contents-list');
+        if (!titleEl || !subtitleEl || !badgeEl || !contentsListEl) return;
 
         const name = this._metadata?.name || 'Asset';
         const type = this._metadata?.type || 'Asset';
@@ -33,33 +33,7 @@ export class AssetCard extends HTMLElement {
         badgeEl.textContent = type;
         badgeEl.classList.add(type.toLowerCase());
 
-        const contents = this._metadata?.contents || [];
-        countEl.textContent = `${contents.length} ${contents.length === 1 ? 'item' : 'items'}`;
-
-        this.renderContents();
-    }
-
-    private renderContents() {
-        const listEl = this.shadow.querySelector('#panel-contents-list');
-        const emptyStateEl = this.shadow.querySelector('.empty-state');
-        if (!listEl || !emptyStateEl) return;
-
-        const contents = this._metadata?.contents || [];
-        if (contents.length === 0) {
-            emptyStateEl.classList.remove('hidden');
-            listEl.replaceChildren(emptyStateEl);
-        } else {
-            emptyStateEl.classList.add('hidden');
-            const items = contents.map(item => {
-                const itemCard = document.createElement('asset-item-card') as AssetItemCard;
-                itemCard.item = item;
-                return itemCard;
-            });
-
-            listEl.replaceChildren(
-                ...items,
-            );
-        };
+        contentsListEl.contents = this._metadata?.contents || [];
     }
 
     connectedCallback() {
@@ -144,46 +118,6 @@ export class AssetCard extends HTMLElement {
                     background: #475569;
                     color: #ffffff;
                 }
-                .panel-body {
-                    padding: 20px;
-                    flex: 1;
-                    display: flex;
-                    flex-direction: column;
-                    gap: 16px;
-                    overflow-y: auto;
-                }
-                .panel-section-title {
-                    font-size: 14px;
-                    font-weight: 600;
-                    color: #cbd5e1;
-                    display: flex;
-                    align-items: center;
-                    justify-content: space-between;
-                }
-                .contents-count-badge {
-                    font-size: 12px;
-                    font-weight: 500;
-                    background: #1e293b;
-                    padding: 2px 8px;
-                    border-radius: 12px;
-                    border: 1px solid #334155;
-                    color: #94a3b8;
-                }
-                .panel-contents-list {
-                    display: flex;
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                .empty-state {
-                    display: flex;
-                    text-align: center;
-                    padding: 20px;
-                    color: #94a3b8;
-                    font-size: 14px;
-                }
-                .empty-state.hidden {
-                    display: none;
-                }
             </style>
             <div class="card">
                 <div class="panel-header">
@@ -194,15 +128,7 @@ export class AssetCard extends HTMLElement {
                     </div>
                     <button id="close-panel-btn" class="close-btn" title="Close Panel">&times;</button>
                 </div>
-                <div class="panel-body">
-                    <div class="panel-section-title">
-                        <span>Stored Assets</span>
-                        <span class="contents-count-badge" id="panel-contents-count">0 items</span>
-                    </div>
-                    <div id="panel-contents-list" class="panel-contents-list">
-                    </div>
-                    <div class="empty-state">No items stored in this location</div>
-                </div>
+                <asset-contents-list></asset-contents-list>
             </div>
         `;
 
