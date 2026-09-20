@@ -11,6 +11,9 @@ export class AssetItemCard extends HTMLElement {
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
+    get content(): AssetContent {
+        return this._content!;
+    }
     set content(content: AssetContent) {
         this._content = content;
         this.render();

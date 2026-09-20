@@ -5,6 +5,7 @@ export class AssetContentsList extends HTMLElement {
     private shadow: ShadowRoot;
 
     private _contents: AssetContent[] = [];
+    private _shadowContents: AssetContent[] = [];
 
     constructor() {
         super();
@@ -13,6 +14,10 @@ export class AssetContentsList extends HTMLElement {
 
     set contents(contents: AssetContent[]) {
         this._contents = contents;
+        this.render();
+    }
+    set shadowContents(shadowContents: AssetContent[]) {
+        this._shadowContents = shadowContents;
         this.render();
     }
 
@@ -24,7 +29,7 @@ export class AssetContentsList extends HTMLElement {
 
         countEl.textContent = `${this._contents.length} ${this._contents.length === 1 ? 'item' : 'items'}`;
 
-        if (this._contents.length === 0) {
+        if (this._contents.length === 0 && this._shadowContents.length == 0) {
             emptyStateEl.classList.remove('hidden');
             listEl.innerHTML = '';
         } else {
@@ -32,10 +37,17 @@ export class AssetContentsList extends HTMLElement {
             const items = this._contents.map(content => {
                 const itemCard = document.createElement('asset-item-card') as AssetItemCard;
                 itemCard.content = content;
+                itemCard.draggable = true;
+                return itemCard;
+            });
+            const shadowItems = this._shadowContents.map(content => {
+                const itemCard = document.createElement('asset-item-card') as AssetItemCard;
+                itemCard.content = content;
+                itemCard.ghost = true;
                 return itemCard;
             });
 
-            listEl.replaceChildren(...items);
+            listEl.replaceChildren(...items, ...shadowItems);
         };
     }
 

@@ -1,17 +1,27 @@
+import { ContentsManipulationService } from './ContentsManipulationService';
 import { Asset, isContainer } from './script';
+import { AssetContent } from './script';
 
 export class AssetCard extends HTMLElement {
     private shadow: ShadowRoot;
 
     private _asset: Asset | null = null;
+    private _shadowContents: AssetContent[] = [];
 
     constructor() {
         super();
         this.shadow = this.attachShadow({ mode: 'open' });
     }
 
+    get id(): string {
+        return this._asset!.id;
+    }
     set asset(asset: Asset) {
         this._asset = asset;
+        this.render();
+    }
+    set shadowContents(shadowContents: AssetContent[]) {
+        this._shadowContents = shadowContents;
         this.render();
     }
 
@@ -42,7 +52,9 @@ export class AssetCard extends HTMLElement {
 
         if (isContainer(this._asset)) {
             contentsListEl.classList.remove('hidden');
+            contentsListEl.id = this._asset.id;
             contentsListEl.contents = this._asset.contents;
+            contentsListEl.shadowContents = this._shadowContents;
         } else {
             contentsListEl.classList.add('hidden');
         }
@@ -133,6 +145,14 @@ export class AssetCard extends HTMLElement {
                 asset-contents-list.hidden {
                     display: none;
                 }
+                :host(.drag-over) .card {
+                    border-color: #3b82f6;
+                    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4), 0 20px 40px rgba(0, 0, 0, 0.5);
+                    background: rgba(30, 41, 59, 0.98);
+                }
+                :host(.drag-over) .panel-body {
+                    background: rgba(59, 130, 246, 0.03);
+                }
             </style>
             <div class="card">
                 <div class="panel-header">
@@ -149,6 +169,26 @@ export class AssetCard extends HTMLElement {
 
         this.shadow.querySelector('#close-panel-btn')?.addEventListener('click', () => {
             this.dispatchCloseCard();
+        });
+
+        const cm = ContentsManipulationService.instance;
+        this.addEventListener("mouseenter", () => {
+            if (!isContainer(this._asset!) || !cm.isDragging) return;
+
+            this.classList.add('drag-over');
+            this.shadowContents = cm.contents;
+        });
+        this.addEventListener("mouseleave", () => {
+            if (!cm.isDragging) return;
+
+            this.classList.remove('drag-over');
+            this.shadowContents = [];
+        });
+        this.addEventListener("mouseup", () => {
+            if (!cm.isDragging) return;
+
+            this.classList.remove('drag-over');
+            this.shadowContents = [];
         });
 
         this.render();

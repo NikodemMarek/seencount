@@ -5,6 +5,7 @@ import './AssetItemCard.ts';
 import './AssetMap.ts';
 import './AssetsService';
 import './BottomBar.ts';
+import './ContentsManipulationService';
 import './DraggableElement';
 import './LocationItem.ts';
 import './LocationSelector.ts';
