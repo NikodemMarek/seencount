@@ -35,16 +35,30 @@ export class AssetCard extends HTMLElement {
 
         const contents = this._metadata?.contents || [];
         countEl.textContent = `${contents.length} ${contents.length === 1 ? 'item' : 'items'}`;
-        listEl.innerHTML = '';
 
+        this.renderContents();
+    }
+
+    private renderContents() {
+        const listEl = this.shadow.querySelector('#panel-contents-list');
+        const emptyStateEl = this.shadow.querySelector('.empty-state');
+        if (!listEl || !emptyStateEl) return;
+
+        const contents = this._metadata?.contents || [];
         if (contents.length === 0) {
-            listEl.innerHTML = '<div class="empty-state">No items stored in this location</div>';
+            emptyStateEl.classList.remove('hidden');
+            listEl.replaceChildren(emptyStateEl);
         } else {
-            contents.forEach(item => {
+            emptyStateEl.classList.add('hidden');
+            const items = contents.map(item => {
                 const itemCard = document.createElement('asset-item-card') as AssetItemCard;
                 itemCard.item = item;
-                listEl.appendChild(itemCard);
+                return itemCard;
             });
+
+            listEl.replaceChildren(
+                ...items,
+            );
         };
     }
 
@@ -161,10 +175,14 @@ export class AssetCard extends HTMLElement {
                     gap: 10px;
                 }
                 .empty-state {
+                    display: flex;
                     text-align: center;
                     padding: 20px;
                     color: #94a3b8;
                     font-size: 14px;
+                }
+                .empty-state.hidden {
+                    display: none;
                 }
             </style>
             <div class="card">
@@ -182,8 +200,8 @@ export class AssetCard extends HTMLElement {
                         <span class="contents-count-badge" id="panel-contents-count">0 items</span>
                     </div>
                     <div id="panel-contents-list" class="panel-contents-list">
-                        <div class="empty-state">Select an object to inspect its contents</div>
                     </div>
+                    <div class="empty-state">No items stored in this location</div>
                 </div>
             </div>
         `;
