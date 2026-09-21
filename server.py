@@ -30,17 +30,17 @@ def get_balance(account):
 
 def handle():
     accounts_raw = query_beancount(ACCOUNTS_METADATA_COMMAND)
-    accounts = [{
+    accounts = {row[0][0]: {
             **row[1],
             "id": row[0][0],
             "filename": None,
             "lineno": None,
             "contents": get_balance(row[0][0])
-    } for row in accounts_raw.get("rows", [])]
+    } for row in accounts_raw.get("rows", [])}
 
-    for account in accounts:
-        del account["filename"]
-        del account["lineno"]
+    for data in accounts.values():
+        del data["filename"]
+        del data["lineno"]
 
     return accounts
 
@@ -94,7 +94,7 @@ class CustomHandler(SimpleHTTPRequestHandler):
     def do_GET(self):
         clean_path = self.path.split('?')[0]
 
-        if clean_path == '/metadata':
+        if clean_path == '/assets':
             response_data = handle()
             self.send_response(200)
             self.send_header("Content-Type", "application/json")

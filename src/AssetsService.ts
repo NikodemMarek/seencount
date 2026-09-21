@@ -1,4 +1,4 @@
-import { Asset, AssetContent, isContainer } from "./script";
+import { Asset, AssetContent, Assets, isContainer } from "./script";
 
 export class AssetsService {
     private static _instance: AssetsService | null = null;
@@ -9,18 +9,18 @@ export class AssetsService {
         return AssetsService._instance;
     }
 
-    private _assets: Asset[] = [];
+    private _assets: Assets = {};
 
-    get assets(): Asset[] {
+    get assets(): Assets {
         return this._assets;
     }
-    set assets(assets: Asset[]) {
+    set assets(assets: Assets) {
         this._assets = assets;
         this.dispatchChange();
     }
 
     public getAssetById(id: string): Asset | null {
-        return this._assets.find(asset => asset.id === id) || null;
+        return this._assets[id] || null;
     }
 
     public addContents(id: string, contents: AssetContent[]): void {
