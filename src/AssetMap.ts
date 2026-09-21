@@ -216,12 +216,7 @@ export class AssetMap extends HTMLElement {
                         bubbles: true,
                         composed: true,
                         cancelable: true,
-                        detail: {
-                            id: asset?.id || feature?.properties?.beancount_id || feature?.id || '',
-                            type: asset?.type || 'Asset',
-                            name: asset?.name || feature?.properties?.name || feature?.id || 'Asset',
-                            ...asset
-                        }
+                        detail: asset?.id || feature?.properties?.beancount_id || feature?.id || ''
                     }));
                 });
             }

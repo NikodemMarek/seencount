@@ -29,7 +29,7 @@ export class AppRoot extends HTMLElement {
     private _sidePanel: SidePanel | null = null;
 
     private _locations: BeancountLocation[] = [];
-    private _selectedAssets: Asset[] = [];
+    private _selectedAssetsIds: Set<string> = new Set();
 
     connectedCallback(): void {
         this.style.display = 'block';
@@ -40,17 +40,19 @@ export class AppRoot extends HTMLElement {
         this._assetMap = document.createElement('asset-map') as AssetMap;
         this.appendChild(this._assetMap);
         this._assetMap.addEventListener('select-object', (ev) => {
-            const metadata = (ev as CustomEvent<Asset>).detail;
-            this.addSelectedAsset(metadata);
+            const id = (ev as CustomEvent<string>).detail;
+            this.addSelectedAsset(id);
         });
 
         this.init();
     }
 
-    set selectedAssets(selectedAssets: Asset[]) {
-        this._selectedAssets = selectedAssets;
+    set selectedAssetsIds(selectedAssetsIds: Set<string>) {
+        this._selectedAssetsIds = selectedAssetsIds;
         if (this._sidePanel) {
-            this._sidePanel.assets = selectedAssets;
+            this._sidePanel.assets = Array
+                .from(selectedAssetsIds, id => this.as.getAssetById(id))
+                .filter(a => !!a);
         }
     }
 
@@ -93,15 +95,13 @@ export class AppRoot extends HTMLElement {
         }, { once: true });
     }
 
-    private addSelectedAsset(asset: Asset) {
-        const exists = this._selectedAssets.some(item => item.id === asset.id);
-        if (exists) return;
-
-        this.selectedAssets = this._selectedAssets.concat(asset);
+    private addSelectedAsset(id: string) {
+        this.selectedAssetsIds = this._selectedAssetsIds.add(id);
     }
 
     private removeSelectedAsset(id: string) {
-        this.selectedAssets = this._selectedAssets.filter(item => item.id !== id);
+        this._selectedAssetsIds.delete(id);
+        this.selectedAssetsIds = this._selectedAssetsIds;
     }
 
     private showSidePanel(): void {
@@ -110,9 +110,7 @@ export class AppRoot extends HTMLElement {
         this.appendChild(sidePanel);
 
         AssetsService.onChange(() => {
-            this.selectedAssets = this._selectedAssets
-                .map(({ id }) => this.as.getAssetById(id))
-                .filter(a => !!a);
+            this.selectedAssetsIds = this._selectedAssetsIds;
         });
 
         sidePanel.addEventListener('close-card', (ev) => {
@@ -144,7 +142,7 @@ export class AppRoot extends HTMLElement {
 
             this._sidePanel?.remove();
             this._sidePanel = null;
-            this._selectedAssets = [];
+            this._selectedAssetsIds.clear();
 
             this.showLocationSelector();
         }, { once: true });
