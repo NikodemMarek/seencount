@@ -1,7 +1,7 @@
 import { AssetMap } from './AssetMap';
 import { LocationSelector } from './LocationSelector';
 import { BottomBar } from './BottomBar';
-import { BeancountLocation, Asset } from './script';
+import { BeancountLocation, Asset, isContainer } from './script';
 import { SidePanel } from './SidePanel';
 import { AssetsService } from './AssetsService';
 
@@ -52,7 +52,7 @@ export class AppRoot extends HTMLElement {
         if (this._sidePanel) {
             this._sidePanel.assets = Array
                 .from(selectedAssetsIds, id => this.as.getAssetById(id))
-                .filter(a => !!a);
+                .filter(a => !!a && isContainer(a));
         }
     }
 
