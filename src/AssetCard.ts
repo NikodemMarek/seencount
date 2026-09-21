@@ -15,6 +15,15 @@ export class AssetCard extends HTMLElement {
         this.render();
     }
 
+    private dispatchCloseCard(): void {
+        this.dispatchEvent(new CustomEvent("close-card", {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            detail: this._asset,
+        }));
+    }
+
     private render() {
         if (!this._asset) return;
 
@@ -139,15 +148,11 @@ export class AssetCard extends HTMLElement {
         `;
 
         this.shadow.querySelector('#close-panel-btn')?.addEventListener('click', () => {
-            this.dispatchEvent(new CustomEvent("close-card", {
-                bubbles: true,
-                cancelable: true,
-            }));
+            this.dispatchCloseCard();
         });
 
         this.render();
     }
-
 }
 
 customElements.define('asset-card', AssetCard);
