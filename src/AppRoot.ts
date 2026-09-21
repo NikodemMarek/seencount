@@ -1,7 +1,7 @@
 import { AssetMap } from './AssetMap';
 import { LocationSelector } from './LocationSelector';
 import { BottomBar } from './BottomBar';
-import { BeancountLocation, Asset, isContainer } from './script';
+import { BeancountLocation, Asset, Assets, isContainer } from './script';
 import { SidePanel } from './SidePanel';
 import { AssetsService } from './AssetsService';
 
@@ -10,8 +10,8 @@ async function fetchLocations(): Promise<BeancountLocation[]> {
     return res.json();
 }
 
-async function fetchAssets(): Promise<Asset[]> {
-    const res = await fetch('/metadata');
+async function fetchAssets(): Promise<Assets> {
+    const res = await fetch('/assets');
     return res.json();
 }
 
@@ -63,16 +63,8 @@ export class AppRoot extends HTMLElement {
     }
 
     private async init(): Promise<void> {
-        const [locations, assets] = await Promise.all([
-            fetchLocations(),
-            fetchAssets().catch((err) => {
-                console.warn('Failed to fetch beancount metadata:', err);
-                return [] as Asset[];
-            })
-        ]);
-
-        this._locations = locations;
-        this.as.assets = assets;
+        this._locations = await fetchLocations();
+        this.as.assets = await fetchAssets();
 
         this.showLocationSelector();
     }

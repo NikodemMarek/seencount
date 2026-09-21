@@ -25,6 +25,7 @@ export type AssetContent = {
     quantity: number;
 };
 
+export type Assets = Record<string, Asset>;
 export type Asset = BasicAsset | ContainerAsset;
 export type BasicAsset = {
     type: AssetType;
