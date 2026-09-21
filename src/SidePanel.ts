@@ -16,14 +16,6 @@ export class SidePanel extends HTMLElement {
         this.render();
     }
 
-    private dispatchCloseCard(asset: Asset) {
-        this.dispatchEvent(new CustomEvent('close-card', {
-            detail: asset,
-            bubbles: true,
-            cancelable: true
-        }));
-    }
-
     private render() {
         const sidePanel = this.shadow.querySelector('.side-panel');
         if (!sidePanel) return;
@@ -31,9 +23,6 @@ export class SidePanel extends HTMLElement {
         const elements = this._assets.map(metadata => {
             const assetCard = document.createElement('asset-card') as AssetCard;
             assetCard.asset = metadata;
-            assetCard.addEventListener('close-card', () => {
-                this.dispatchCloseCard(metadata);
-            }, { once: true });
             return assetCard;
         });
         sidePanel.replaceChildren(...elements);
