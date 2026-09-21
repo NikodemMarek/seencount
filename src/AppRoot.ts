@@ -125,7 +125,6 @@ export class AppRoot extends HTMLElement {
         const geojson = await fetchGeoJson(location.filename);
 
         if (this._assetMap) {
-            this._assetMap.locationsMetadata = this.as.assets;
             this._assetMap.geojson = geojson;
         }
 

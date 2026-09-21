@@ -1,4 +1,5 @@
 declare var L: typeof import('leaflet');
+import { AssetsService } from './AssetsService';
 import { Asset, isContainer } from './script';
 
 const METERS_PER_DEGREE = 111320;
@@ -108,21 +109,18 @@ function createPopup(metadata: Asset) {
 }
 
 export class AssetMap extends HTMLElement {
+    private as = AssetsService.instance;
+
     private map: L.Map | null = null;
     private _currentGeoJsonLayer: L.GeoJSON | null = null;
     private resizeObserver: ResizeObserver | null = null;
 
-    private _locationsMetadata: Asset[] = [];
     private _geojson: any = null;
 
     constructor() {
         super();
     }
 
-    set locationsMetadata(metadata: Asset[]) {
-        this._locationsMetadata = metadata;
-        this.renderGeoJson();
-    }
     set geojson(geojson: any) {
         this._geojson = geojson;
         this.renderGeoJson();
@@ -186,14 +184,14 @@ export class AssetMap extends HTMLElement {
         const scaledJson = scaleGeoJsonObject(this._geojson);
         this._currentGeoJsonLayer = L.geoJSON(scaledJson, {
             style: (feature: any) => {
-                const metadata = this._locationsMetadata.find(loc => loc.id === feature?.properties?.beancount_id) || null;
-                return getStyle(metadata);
+                const asset = this.as.getAssetById(feature?.properties?.beancount_id);
+                return getStyle(asset);
             },
             onEachFeature: (feature: any, layer: any) => {
-                const metadata = this._locationsMetadata.find(loc => loc.id === feature?.properties?.beancount_id) || null;
+                const asset = this.as.getAssetById(feature?.properties?.beancount_id);
 
-                if (metadata) {
-                    layer.bindPopup(createPopup(metadata));
+                if (asset) {
+                    layer.bindPopup(createPopup(asset));
                 } else {
                     const fallbackTitle = feature?.properties?.name ?? feature.id ?? 'Asset';
                     layer.bindPopup(`<div class="popup-title"><div class="popup-detail">${fallbackTitle}</div></div>`);
@@ -207,7 +205,7 @@ export class AssetMap extends HTMLElement {
 
                 layer.on('mouseout', () => {
                     if ('setStyle' in layer && typeof layer.setStyle === 'function') {
-                        layer.setStyle(getStyle(metadata));
+                        layer.setStyle(getStyle(asset));
                     }
                 });
 
@@ -219,10 +217,10 @@ export class AssetMap extends HTMLElement {
                         composed: true,
                         cancelable: true,
                         detail: {
-                            id: metadata?.id || feature?.properties?.beancount_id || feature?.id || '',
-                            type: metadata?.type || 'Asset',
-                            name: metadata?.name || feature?.properties?.name || feature?.id || 'Asset',
-                            ...metadata
+                            id: asset?.id || feature?.properties?.beancount_id || feature?.id || '',
+                            type: asset?.type || 'Asset',
+                            name: asset?.name || feature?.properties?.name || feature?.id || 'Asset',
+                            ...asset
                         }
                     }));
                 });
