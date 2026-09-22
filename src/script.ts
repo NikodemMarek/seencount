@@ -18,27 +18,47 @@ export type BeancountLocation = {
     data: any;
 };
 
-export type AssetType = 'Property' | 'Area' | 'Container' | 'Asset';
+export type Assets = Record<string, Asset>;
+export type Asset = PropertyAsset | AreaAsset | ContainerAsset | BasicAsset;
+export type PropertyAsset = {
+    type: 'Property';
+    id: string;
+    country: string;
+    city: string;
+    street: string;
+    number: string;
+    "postal-code": string;
+    ownership: AssetOwnership;
+    contents: AssetContent[];
+};
+export type AreaAsset = {
+    type: 'Area';
+    id: string;
+    name: string;
+    contents: AssetContent[];
+};
+export type ContainerAsset = {
+    type: 'Container';
+    id: string;
+    name: string;
+    contents: AssetContent[];
+};
+export type BasicAsset = {
+    type: 'Asset';
+    id: string;
+    name?: string;
+};
 
+export type AssetOwnership = 'Owned';
 export type AssetContent = {
     asset: string;
     quantity: number;
 };
 
-export type Assets = Record<string, Asset>;
-export type Asset = BasicAsset | ContainerAsset;
-export type BasicAsset = {
-    type: AssetType;
-    id: string;
-    name?: string;
-};
-export type ContainerAsset = {
-    type: AssetType;
-    id: string;
-    name: string;
-    contents: AssetContent[];
-};
-
 export function isContainer(asset: Asset): asset is ContainerAsset {
-    return asset.type === 'Property' || asset.type === 'Area' || asset.type === 'Container'
+    return asset.type === 'Property' || asset.type === 'Area' || asset.type === 'Container';
+}
+
+export function assertNever(value: never): never {
+      throw new Error(`Unhandled variant: ${value}`);
 }

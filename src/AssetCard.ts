@@ -1,6 +1,21 @@
 import { ContentsManipulationService } from './ContentsManipulationService';
-import { Asset, isContainer } from './script';
+import { assertNever, Asset, isContainer } from './script';
 import { AssetContent } from './script';
+
+function getDetails(asset: Asset): string {
+    switch (asset.type) {
+        case 'Property':
+            return `${asset.street}/${asset.number}<br>${asset['postal-code']} ${asset.city}<br>${asset.country}`;
+        case 'Area':
+            return `${asset.name}`;
+        case 'Container':
+            return `${asset.name}`;
+        case 'Asset':
+            return `${asset.name || 'Asset'}`;
+        default:
+            assertNever(asset);
+    }
+}
 
 export class AssetCard extends HTMLElement {
     private shadow: ShadowRoot;
@@ -43,9 +58,7 @@ export class AssetCard extends HTMLElement {
         const contentsListEl = this.shadow.querySelector('asset-contents-list');
         if (!titleEl || !subtitleEl || !badgeEl || !contentsListEl) return;
 
-        const name = this._asset?.name || "Asset";
-        titleEl.textContent = name;
-
+        titleEl.innerHTML = getDetails(this._asset);
         subtitleEl.textContent = this._asset.id;
         badgeEl.textContent = this._asset.type;
         badgeEl.classList.add(this._asset.type.toLowerCase());
