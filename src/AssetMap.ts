@@ -67,7 +67,7 @@ function getStyle(metadata: Asset | null) {
     switch (metadata.type) {
         case "Property":
             return {};
-        case "Room":
+        case "Area":
             return {
                 color: '#585b70',
                 weight: 2,
@@ -90,7 +90,7 @@ function getLabel(metadata: Asset) {
     switch (metadata.type) {
         case "Property":
             return ``;
-        case "Room":
+        case "Area":
             return `${metadata.name}`;
         case "Container":
             return `${metadata.name}`;

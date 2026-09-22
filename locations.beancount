@@ -10,7 +10,7 @@
   ownership: "Owned"
 
 2026-07-31 open Assets:Locations:Flat-Main:Room-Bedroom
-  type: "Room"
+  type: "Area"
   name: "Bedroom"
 
 2026-07-31 open Assets:Locations:Flat-Main:Room-Bedroom:Container-Wardrobe
