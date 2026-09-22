@@ -104,7 +104,7 @@ export class AssetCard extends HTMLElement {
                 .panel-type-badge.property {
                     background: #475569;
                 }
-                .panel-type-badge.room {
+                .panel-type-badge.area {
                     background: #0284c7;
                 }
                 .panel-type-badge.container {
