@@ -18,7 +18,7 @@ export type BeancountLocation = {
     data: any;
 };
 
-export type AssetType = 'Flat' | 'Room' | 'Container' | 'Asset';
+export type AssetType = 'Property' | 'Room' | 'Container' | 'Asset';
 
 export type AssetContent = {
     asset: string;
@@ -40,5 +40,5 @@ export type ContainerAsset = {
 };
 
 export function isContainer(asset: Asset): asset is ContainerAsset {
-    return asset.type === 'Flat' || asset.type === 'Room' || asset.type === 'Container'
+    return asset.type === 'Property' || asset.type === 'Room' || asset.type === 'Container'
 }
