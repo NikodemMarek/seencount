@@ -17,7 +17,7 @@ export class BottomBar extends HTMLElement {
         const label = this.shadow.querySelector('#current-location-label');
         if (!label) return;
 
-        label.textContent = `📍 ${this._location}`;
+        label.textContent = this._location;
     }
 
     connectedCallback() {
@@ -67,8 +67,8 @@ export class BottomBar extends HTMLElement {
                 }
             </style>
             <div class="bottom-bar">
+                <button id="change-location-btn" class="btn-secondary">📍 Change Location</button>
                 <span class="active-location-name" id="current-location-label"></span>
-                <button id="change-location-btn" class="btn-secondary">Change Location</button>
             </div>
         `;
 
