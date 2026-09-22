@@ -54,8 +54,8 @@ function scaleGeoJsonObject(geojson: any) {
     return scaled;
 }
 
-function getStyle(metadata: Asset | null) {
-    if (!metadata) {
+function getStyle(asset: Asset | null) {
+    if (!asset) {
         return {
             color: '#eba0ac',
             weight: 2,
@@ -64,7 +64,7 @@ function getStyle(metadata: Asset | null) {
         };
     }
 
-    switch (metadata.type) {
+    switch (asset.type) {
         case "Property":
             return {};
         case "Area":
@@ -81,28 +81,32 @@ function getStyle(metadata: Asset | null) {
                 fillColor: '#89b4fa',
                 fillOpacity: 0.3
             };
+        case 'Asset':
+            return {};
         default:
             return {};
     }
 }
 
-function getLabel(metadata: Asset) {
-    switch (metadata.type) {
+function getLabel(asset: Asset) {
+    switch (asset.type) {
         case "Property":
-            return ``;
+            return `${asset.street}/${asset.number}<br>${asset['postal-code']} ${asset.city}<br>${asset.country}`;
         case "Area":
-            return `${metadata.name}`;
+            return `${asset.name}`;
         case "Container":
-            return `${metadata.name}`;
+            return `${asset.name}`;
+        case 'Asset':
+            return `${asset.name || 'Asset'}`;
         default:
-            return `Unnamed ${metadata.type}`;
+            return `Unknown`;
     }
 }
 
-function createPopup(metadata: Asset) {
-    const label = getLabel(metadata);
-    const contents = isContainer(metadata) && metadata.contents.length !== 0
-        ? `Contains: ${metadata.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
+function createPopup(asset: Asset) {
+    const label = getLabel(asset);
+    const contents = isContainer(asset) && asset.contents.length !== 0
+        ? `Contains: ${asset.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
         : 'Empty';
 
     return `<div class="popup-title"><div class="popup-detail">${label}<br>${contents}</div></div>`;
