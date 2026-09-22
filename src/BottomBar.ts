@@ -68,12 +68,19 @@ export class BottomBar extends HTMLElement {
             </style>
             <div class="bottom-bar">
                 <button id="change-location-btn" class="btn-secondary">📍 Change Location</button>
+                <button id="contents-btn" class="btn-secondary">📦 Contents</button>
                 <span class="active-location-name" id="current-location-label"></span>
             </div>
         `;
 
         this.shadow.querySelector('#change-location-btn')?.addEventListener('click', () => {
             this.dispatchEvent(new CustomEvent('change-location', {
+                bubbles: true,
+                composed: true
+            }));
+        });
+        this.shadow.querySelector('#contents-btn')?.addEventListener('click', () => {
+            this.dispatchEvent(new CustomEvent('show-contents', {
                 bubbles: true,
                 composed: true
             }));
