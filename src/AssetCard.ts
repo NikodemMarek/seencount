@@ -101,14 +101,14 @@ export class AssetCard extends HTMLElement {
                     background: #3b82f6;
                     color: #ffffff;
                 }
+                .panel-type-badge.property {
+                    background: #475569;
+                }
                 .panel-type-badge.room {
                     background: #0284c7;
                 }
                 .panel-type-badge.container {
                     background: #9333ea;
-                }
-                .panel-type-badge.flat {
-                    background: #475569;
                 }
                 .panel-title {
                     margin: 4px 0 0 0;

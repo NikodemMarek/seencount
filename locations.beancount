@@ -1,7 +1,7 @@
 2026-07-31 open Equity:Inventory:Tracking
 
 2026-07-31 open Assets:Locations:Flat-Main
-  type: "Flat"
+  type: "Property"
   country: "Nowhere"
   city: "Nukecity"
   street: "Fallout 77"

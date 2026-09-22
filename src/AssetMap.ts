@@ -65,7 +65,7 @@ function getStyle(metadata: Asset | null) {
     }
 
     switch (metadata.type) {
-        case "Flat":
+        case "Property":
             return {};
         case "Room":
             return {
@@ -88,7 +88,7 @@ function getStyle(metadata: Asset | null) {
 
 function getLabel(metadata: Asset) {
     switch (metadata.type) {
-        case "Flat":
+        case "Property":
             return ``;
         case "Room":
             return `${metadata.name}`;
