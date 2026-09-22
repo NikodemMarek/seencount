@@ -1,0 +1,50 @@
+.asset-item-card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 14px;
+    background: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 12px;
+    transition: border-color 0.2s ease;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+.asset-item-card.ghost {
+    opacity: 0.5;
+    filter: brightness(0.7) saturate(0.5);
+    pointer-events: none;
+    cursor: default;
+}
+.asset-item-card:hover {
+    border-color: #3b82f6;
+}
+.asset-item-card > .item-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.asset-item-card > .item-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    background: #1e293b;
+    border: 1px solid #334155;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+}
+.asset-item-card > .item-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f8fafc;
+}
+.asset-item-card > .item-qty-badge {
+    font-size: 13px;
+    font-weight: 700;
+    color: #60a5fa;
+    background: rgba(59, 130, 246, 0.15);
+    padding: 4px 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
