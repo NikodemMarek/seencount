@@ -29,6 +29,7 @@ export class AppRoot extends HTMLElement {
     private _sidePanel: SidePanel | null = null;
 
     private _locations: BeancountLocation[] = [];
+    private _selectedLocationId: string | null = null;
     private _selectedAssetsIds: Set<string> = new Set();
 
     connectedCallback(): void {
@@ -78,6 +79,7 @@ export class AppRoot extends HTMLElement {
         selector.addEventListener('location-selected', async (ev) => {
             const { location } = (ev as CustomEvent<{ location: BeancountLocation }>).detail;
             selector.remove();
+            this._selectedLocationId = location.beancount_id;
             this._locationSelector = null;
 
             if (this._assetMap) {
@@ -134,10 +136,14 @@ export class AppRoot extends HTMLElement {
 
             this._sidePanel?.remove();
             this._sidePanel = null;
+            this._selectedLocationId = null;
             this._selectedAssetsIds.clear();
 
             this.showLocationSelector();
         }, { once: true });
+        bar.addEventListener('show-contents', () => {
+            this.addSelectedAsset(this._selectedLocationId!);
+        });
     }
 }
 
