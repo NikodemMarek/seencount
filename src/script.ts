@@ -1,3 +1,5 @@
+import init, { add } from '../pkg/seencount.js';
+import wasmBytes from '../pkg/seencount_bg.wasm';
 import './AppRoot.ts';
 import './AssetCard.ts';
 import './AssetContentsList.ts';
@@ -62,3 +64,12 @@ export function isContainer(asset: Asset): asset is ContainerAsset {
 export function assertNever(value: never): never {
       throw new Error(`Unhandled variant: ${value}`);
 }
+
+async function run() {
+  await init({ module_or_path: wasmBytes });
+
+  const sum = add(40, 2);
+  console.log('Result from Rust WASM:', sum);
+}
+
+run();
