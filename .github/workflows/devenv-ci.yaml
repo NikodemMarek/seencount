@@ -1,10 +1,14 @@
 name: Devenv CI
-on: [push]
+
+on:
+  push:
+
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - uses: cachix/install-nix-action@v31
 
@@ -12,16 +16,56 @@ jobs:
         with:
           name: devenv
 
-      - run: nix profile add nixpkgs#devenv
+      - name: Install devenv
+        run: nix profile add nixpkgs#devenv
 
-      - run: devenv shell -- build-frontend
+      - name: Build frontend
+        run: devenv shell -- build-frontend
 
-      - uses: actions/upload-artifact@v7
+      - name: Upload script.js
+        uses: actions/upload-artifact@v7
         with:
+          name: frontend-build-script
           path: script.js
           archive: false
 
-      - uses: actions/upload-artifact@v7
+      - name: Upload index.html
+        uses: actions/upload-artifact@v7
         with:
+          name: frontend-build-index
           path: index.html
           archive: false
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download script.js
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-build-script
+          path: .
+
+      - name: Download index.html
+        uses: actions/download-artifact@v8
+        with:
+          name: frontend-build-index
+          path: .
+
+      - name: Update script.js URL
+        run: |
+          sed -i \
+            "s|script\.js|https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}/script.js|g" \
+            index.html
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            script.js
+            index.html
