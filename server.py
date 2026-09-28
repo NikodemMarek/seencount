@@ -25,7 +25,7 @@ def get_balance(account):
         return []
     return [{
         "asset": position["currency"],
-        "quantity": position["number"]
+        "quantity": float(position["number"])
     } for position in balance_raw["rows"][0][1]["positions"]]
 
 def handle():
