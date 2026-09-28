@@ -34,15 +34,13 @@ impl Assets {
         self.0.get(id)
     }
 
-    fn move_contents(&mut self, from_id: &str, to_id: &str, content_index: usize) {
-        self.0
-            .get_mut(from_id)
-            .map(|asset| asset.remove(content_index))
-            .inspect(|content| {
-                self.0
-                    .entry(to_id.into())
-                    .and_modify(|asset| asset.add_contents([content.clone()]));
-            });
+    pub fn move_contents(&mut self, from_id: &str, to_id: &str, contents: &[Content]) {
+        if let Some(from_asset) = self.0.get_mut(from_id) {
+            from_asset.remove(contents);
+        }
+        if let Some(to_asset) = self.0.get_mut(to_id) {
+            to_asset.add(contents.into_iter().cloned());
+        }
     }
 }
 
@@ -91,21 +89,25 @@ impl Asset {
             Asset::Basic { id, name } => &[],
         }
     }
-    pub(crate) fn add_contents(&mut self, contents: impl IntoIterator<Item = Content>) {
+    pub(crate) fn add(&mut self, contents: impl IntoIterator<Item = Content>) {
         match self {
-            Asset::Property(container) => container.add_contents(contents),
-            Asset::Area(container) => container.add_contents(contents),
-            Asset::Container(container) => container.add_contents(contents),
+            Asset::Property(container) => container.add(contents),
+            Asset::Area(container) => container.add(contents),
+            Asset::Container(container) => container.add(contents),
             Asset::Basic { id, name } => todo!(),
         }
     }
-    pub(crate) fn remove(&mut self, index: usize) -> Content {
+    pub(crate) fn remove(&mut self, contents: &[Content]) {
         match self {
-            Asset::Property(container) => container.remove(index),
-            Asset::Area(container) => container.remove(index),
-            Asset::Container(container) => container.remove(index),
+            Asset::Property(container) => container.remove(contents),
+            Asset::Area(container) => container.remove(contents),
+            Asset::Container(container) => container.remove(contents),
             Asset::Basic { id, name } => todo!(),
         }
+    }
+
+    fn get_content_by_index(&self, index: usize) -> Option<&Content> {
+        self.contents().get(index)
     }
 
     pub(crate) fn get_type(&self) -> &'static str {
@@ -136,44 +138,44 @@ impl Asset {
 
 trait Container {
     fn contents(&self) -> &[Content];
-    fn add_contents(&mut self, contents: impl IntoIterator<Item = Content>);
-    fn remove(&mut self, index: usize) -> Content;
+    fn add(&mut self, contents: impl IntoIterator<Item = Content>);
+    fn remove(&mut self, contents: &[Content]);
 }
 impl Container for PropertyAsset {
     fn contents(&self) -> &[Content] {
         &self.contents
     }
-    fn add_contents(&mut self, contents: impl IntoIterator<Item = Content>) {
+    fn add(&mut self, contents: impl IntoIterator<Item = Content>) {
         self.contents.extend(contents);
     }
-    fn remove(&mut self, index: usize) -> Content {
-        self.contents.remove(index)
+    fn remove(&mut self, contents: &[Content]) {
+        self.contents.retain(|item| !contents.contains(item));
     }
 }
 impl Container for AreaAsset {
     fn contents(&self) -> &[Content] {
         &self.contents
     }
-    fn add_contents(&mut self, contents: impl IntoIterator<Item = Content>) {
+    fn add(&mut self, contents: impl IntoIterator<Item = Content>) {
         self.contents.extend(contents);
     }
-    fn remove(&mut self, index: usize) -> Content {
-        self.contents.remove(index)
+    fn remove(&mut self, contents: &[Content]) {
+        self.contents.retain(|item| !contents.contains(item));
     }
 }
 impl Container for ContainerAsset {
     fn contents(&self) -> &[Content] {
         &self.contents
     }
-    fn add_contents(&mut self, contents: impl IntoIterator<Item = Content>) {
+    fn add(&mut self, contents: impl IntoIterator<Item = Content>) {
         self.contents.extend(contents);
     }
-    fn remove(&mut self, index: usize) -> Content {
-        self.contents.remove(index)
+    fn remove(&mut self, contents: &[Content]) {
+        self.contents.retain(|item| !contents.contains(item));
     }
 }
 
-#[derive(Clone, Deserialize, Debug)]
+#[derive(Clone, Deserialize, Debug, PartialEq)]
 pub struct Content {
     pub(crate) asset: Box<str>,
     pub(crate) quantity: usize,
@@ -194,7 +196,16 @@ impl AssetsService {
 
     pub(crate) fn move_contents(from_id: &str, to_id: &str, content_index: usize) {
         Self::with_mut(|service| {
-            service.assets.move_contents(from_id, to_id, content_index);
+            if let Some(content) = service
+                .assets
+                .get_asset_by_id(from_id)
+                .map(|asset| asset.get_content_by_index(content_index))
+                .flatten()
+            {
+                service
+                    .assets
+                    .move_contents(from_id, to_id, &[content.clone()]);
+            };
         });
     }
 }
