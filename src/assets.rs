@@ -7,7 +7,9 @@ use serde::Deserialize;
 use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
 
 use crate::{
-    AppStateService, contents_manipulation_service::MOVING_ACCOUNT, modifications::Modification,
+    AppStateService,
+    contents_manipulation_service::MOVING_ACCOUNT,
+    modifications::{Modification, ModificationHistory},
     service::Service,
 };
 
@@ -178,6 +180,7 @@ pub struct Content {
 #[derive(Default)]
 pub(crate) struct AssetsService {
     assets: Assets,
+    history: ModificationHistory,
 }
 impl AssetsService {
     pub(crate) fn set_assets(new_assets: Assets) {
@@ -196,11 +199,14 @@ impl AssetsService {
                 .map(|asset| asset.get_content_by_index(content_index))
                 .flatten()
             {
-                service.assets.apply(Modification::Move {
+                let modification = Modification::Move {
                     from_id: from_id.into(),
                     to_id: to_id.into(),
                     contents: [content.clone()].into(),
-                });
+                };
+                if service.assets.apply(modification.clone()) {
+                    service.history.push(modification);
+                }
             };
         });
     }
