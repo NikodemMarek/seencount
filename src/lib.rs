@@ -19,7 +19,7 @@ use std::{
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    assets::{Asset, Assets, ContainerAsset, Content},
+    assets::{Asset, Assets, AssetsService, ContainerAsset, Content},
     bottom_bar::BottomBarComponent,
     location::Locations,
     location_selector::LocationSelectorComponent,
@@ -76,7 +76,7 @@ pub fn load() {
     }));
     let assets_cb = Closure::wrap(Box::new(move |data: JsValue| {
         let assets = serde_wasm_bindgen::from_value::<Assets>(data).unwrap();
-        Assets::set_assets(assets);
+        AssetsService::set_assets(assets);
         crate::dispatchUiChanged();
     }));
 
@@ -102,14 +102,14 @@ pub fn render() -> String {
 
 #[wasm_bindgen]
 pub fn get_type_by_id(id: &str) -> String {
-    Assets::get_asset_by_id(id)
+    AssetsService::get_asset_by_id(id)
         .map(|asset| asset.get_type())
         .unwrap_or("")
         .into()
 }
 #[wasm_bindgen]
 pub fn get_details_by_id(id: &str) -> String {
-    Assets::get_asset_by_id(id)
+    AssetsService::get_asset_by_id(id)
         .map(|asset| asset.get_details().into())
         .unwrap_or("".into())
 }
