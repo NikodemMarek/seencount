@@ -19,12 +19,14 @@
     };
   };
 
+  scripts.build-frontend.exec = ''
+    wasm-pack build --target web
+    esbuild src/script.ts --bundle --outfile=script.js --loader:.wasm=binary --target=es2022
+  '';
+
   processes = {
     frontend = {
-      exec = ''
-        wasm-pack build --target web
-        esbuild src/script.ts --bundle --outfile=script.js --loader:.wasm=binary --target=es2022
-      '';
+      exec = "build-frontend";
       watch = {
         paths = [./src];
         extensions = ["rs" "ts" "css"];
