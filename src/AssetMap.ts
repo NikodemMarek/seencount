@@ -1,6 +1,5 @@
 declare var L: typeof import('leaflet');
-import { AssetsService } from './AssetsService';
-import { Asset, isContainer } from './script';
+import { get_type_by_id, get_details_by_id, select_id } from '../pkg/seencount';
 
 const METERS_PER_DEGREE = 111320;
 
@@ -54,8 +53,8 @@ function scaleGeoJsonObject(geojson: any) {
     return scaled;
 }
 
-function getStyle(asset: Asset | null) {
-    if (!asset) {
+function getStyle(id: string | null) {
+    if (!id) {
         return {
             color: '#eba0ac',
             weight: 2,
@@ -64,57 +63,44 @@ function getStyle(asset: Asset | null) {
         };
     }
 
-    switch (asset.type) {
-        case "Property":
+    const type = get_type_by_id(id);
+
+    switch (type) {
+        case "property":
             return {};
-        case "Area":
+        case "area":
             return {
                 color: '#585b70',
                 weight: 2,
                 fillColor: '#585b70',
                 fillOpacity: 0.1
             };
-        case "Container":
+        case "container":
             return {
                 color: '#89b4fa',
                 weight: 2,
                 fillColor: '#89b4fa',
                 fillOpacity: 0.3
             };
-        case 'Asset':
+        case 'asset':
             return {};
         default:
             return {};
     }
 }
 
-function getLabel(asset: Asset) {
-    switch (asset.type) {
-        case "Property":
-            return `${asset.street}/${asset.number}<br>${asset['postal-code']} ${asset.city}<br>${asset.country}`;
-        case "Area":
-            return `${asset.name}`;
-        case "Container":
-            return `${asset.name}`;
-        case 'Asset':
-            return `${asset.name || 'Asset'}`;
-        default:
-            return `Unknown`;
-    }
-}
-
-function createPopup(asset: Asset) {
-    const label = getLabel(asset);
-    const contents = isContainer(asset) && asset.contents.length !== 0
-        ? `Contains: ${asset.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
-        : 'Empty';
+function createPopup(id: string) {
+    const label = get_details_by_id(id);
+    // This actually no longer makes much sense, leaving for reference.
+    // const contents = isContainer(asset) && asset.contents.length !== 0
+    //     ? `Contains: ${asset.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
+    //     : 'Empty';
+    const contents = "";
 
     return `<div class="popup-title"><div class="popup-detail">${label}<br>${contents}</div></div>`;
 }
 
 export class AssetMap extends HTMLElement {
-    private as = AssetsService.instance;
-
     private map: L.Map | null = null;
     private _currentGeoJsonLayer: L.GeoJSON | null = null;
     private resizeObserver: ResizeObserver | null = null;
@@ -188,14 +174,13 @@ export class AssetMap extends HTMLElement {
         const scaledJson = scaleGeoJsonObject(this._geojson);
         this._currentGeoJsonLayer = L.geoJSON(scaledJson, {
             style: (feature: any) => {
-                const asset = this.as.getAssetById(feature?.properties?.beancount_id);
-                return getStyle(asset);
+                return getStyle(feature?.properties?.beancount_id);
             },
             onEachFeature: (feature: any, layer: any) => {
-                const asset = this.as.getAssetById(feature?.properties?.beancount_id);
+                const id = feature?.properties?.beancount_id;
 
-                if (asset) {
-                    layer.bindPopup(createPopup(asset));
+                if (id) {
+                    layer.bindPopup(createPopup(id));
                 } else {
                     const fallbackTitle = feature?.properties?.name ?? feature.id ?? 'Asset';
                     layer.bindPopup(`<div class="popup-title"><div class="popup-detail">${fallbackTitle}</div></div>`);
@@ -209,19 +194,14 @@ export class AssetMap extends HTMLElement {
 
                 layer.on('mouseout', () => {
                     if ('setStyle' in layer && typeof layer.setStyle === 'function') {
-                        layer.setStyle(getStyle(asset));
+                        layer.setStyle(getStyle(id));
                     }
                 });
 
                 layer.on('click', (e: L.LeafletEvent) => {
                     L.DomEvent.stopPropagation(e);
 
-                    this.dispatchEvent(new CustomEvent('select-object', {
-                        bubbles: true,
-                        composed: true,
-                        cancelable: true,
-                        detail: asset?.id || feature?.properties?.beancount_id || feature?.id || ''
-                    }));
+                    select_id(id || feature?.id || '');
                 });
             }
         });
