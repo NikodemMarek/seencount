@@ -7,6 +7,7 @@ mod contents_manipulation_service;
 mod location;
 mod location_item;
 mod location_selector;
+mod modifications;
 mod service;
 mod side_panel;
 

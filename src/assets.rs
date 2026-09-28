@@ -6,7 +6,10 @@ use std::{
 use serde::Deserialize;
 use wasm_bindgen::{JsValue, prelude::wasm_bindgen};
 
-use crate::{AppStateService, contents_manipulation_service::MOVING_ACCOUNT, service::Service};
+use crate::{
+    AppStateService, contents_manipulation_service::MOVING_ACCOUNT, modifications::Modification,
+    service::Service,
+};
 
 #[derive(Deserialize, Debug)]
 pub(crate) struct Assets(pub HashMap<Box<str>, Asset>);
@@ -32,15 +35,6 @@ impl Assets {
 
     fn get_asset_by_id(&self, id: &str) -> Option<&Asset> {
         self.0.get(id)
-    }
-
-    pub fn move_contents(&mut self, from_id: &str, to_id: &str, contents: &[Content]) {
-        if let Some(from_asset) = self.0.get_mut(from_id) {
-            from_asset.remove(contents);
-        }
-        if let Some(to_asset) = self.0.get_mut(to_id) {
-            to_asset.add(contents.into_iter().cloned());
-        }
     }
 }
 
@@ -202,9 +196,11 @@ impl AssetsService {
                 .map(|asset| asset.get_content_by_index(content_index))
                 .flatten()
             {
-                service
-                    .assets
-                    .move_contents(from_id, to_id, &[content.clone()]);
+                service.assets.apply(Modification::Move {
+                    from_id: from_id.into(),
+                    to_id: to_id.into(),
+                    contents: [content.clone()].into(),
+                });
             };
         });
     }
