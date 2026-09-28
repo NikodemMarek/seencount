@@ -1,0 +1,27 @@
+name: Devenv CI
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: cachix/install-nix-action@v31
+
+      - uses: cachix/cachix-action@v17
+        with:
+          name: devenv
+
+      - run: nix profile add nixpkgs#devenv
+
+      - run: devenv shell -- build-frontend
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: script.js
+          archive: false
+
+      - uses: actions/upload-artifact@v7
+        with:
+          path: index.html
+          archive: false
