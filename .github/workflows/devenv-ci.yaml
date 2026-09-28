@@ -25,3 +25,20 @@ jobs:
         with:
           path: index.html
           archive: false
+
+  release:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+
+      - run: sed 's|script.js|https://github.com/\({{ github.repository }}/releases/download/\){{ github.ref_name }}/script.js|g' index.html > index.html
+
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            script.js
+            index.html
