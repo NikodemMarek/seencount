@@ -1,5 +1,14 @@
 use crate::assets::{Assets, Content};
 
+#[derive(Default)]
+pub struct ModificationHistory(Vec<Modification>);
+impl ModificationHistory {
+    pub fn push(&mut self, modification: Modification) {
+        self.0.push(modification);
+    }
+}
+
+#[derive(Clone)]
 pub enum Modification {
     Move {
         from_id: Box<str>,
