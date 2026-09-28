@@ -1,7 +1,7 @@
 use wasm_bindgen::prelude::*;
 
 use crate::{
-    asset_contents_list::AssetContentsListComponent, assets::Assets,
+    asset_contents_list::AssetContentsListComponent, assets::AssetsService,
     contents_manipulation_service::get_shadow_contents,
 };
 
@@ -10,7 +10,7 @@ const STYLE: &str = include_str!("./asset_card.css");
 pub(crate) struct AssetCardTemplate;
 impl AssetCardTemplate {
     pub(crate) fn render(id: &str) -> String {
-        let Some(asset) = Assets::get_asset_by_id(id) else {
+        let Some(asset) = AssetsService::get_asset_by_id(id) else {
             return "".into();
         };
         let details = asset.get_details();

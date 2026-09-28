@@ -1,14 +1,14 @@
 use std::{cell::RefCell, thread::LocalKey};
 
 use crate::{
-    AppStateService, assets::Assets, contents_manipulation_service::ContentManipulationService,
-    location::Locations,
+    AppStateService, assets::AssetsService,
+    contents_manipulation_service::ContentManipulationService, location::Locations,
 };
 
 thread_local! {
     static APP_STATE_SERVICE: RefCell<AppStateService> = RefCell::new(AppStateService::default());
     static LOCATIONS_SERVICE: RefCell<Locations> = RefCell::new(Locations::default());
-    static ASSETS_SERVICE: RefCell<Assets> = RefCell::new(Assets::default());
+    static ASSETS_SERVICE: RefCell<AssetsService> = RefCell::new(AssetsService::default());
     static CONTENT_MANIPULATION_SERVICE: RefCell<ContentManipulationService> = RefCell::new(ContentManipulationService::default());
 }
 
@@ -43,7 +43,7 @@ impl Service for Locations {
         &LOCATIONS_SERVICE
     }
 }
-impl Service for Assets {
+impl Service for AssetsService {
     fn instance() -> &'static LocalKey<RefCell<Self>> {
         &ASSETS_SERVICE
     }

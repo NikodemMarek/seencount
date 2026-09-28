@@ -4,7 +4,7 @@ use std::cell::RefCell;
 
 use crate::{
     asset_item_card::AssetItemCardComponent,
-    assets::{Asset, Assets, Content},
+    assets::{Asset, Assets, AssetsService, Content},
     service::Service,
 };
 
@@ -42,15 +42,15 @@ pub(crate) fn get_shadow_contents(id: &str) -> Option<Box<[Content]>> {
     if !ContentManipulationService::is_hovering(id) {
         return None;
     }
-    Assets::get_asset_by_id(MOVING_ACCOUNT).map(|asset| asset.contents().into())
+    AssetsService::get_asset_by_id(MOVING_ACCOUNT).map(|asset| asset.contents().into())
 }
 
 #[wasm_bindgen]
 pub fn handle_content_drag(id: &str, index: usize) -> String {
-    Assets::move_contents(id, MOVING_ACCOUNT, index);
+    AssetsService::move_contents(id, MOVING_ACCOUNT, index);
     ContentManipulationService::set_origin(Some(id));
 
-    Assets::get_asset_by_id(MOVING_ACCOUNT)
+    AssetsService::get_asset_by_id(MOVING_ACCOUNT)
         .map(|asset| AssetItemCardComponent::render(&asset.contents()[0], true, 0))
         .map(|rendered| format!("<draggable-element>{rendered}</draggable-element>"))
         .inspect(|_| crate::dispatchUiChanged())
@@ -80,7 +80,7 @@ pub fn handle_content_drop(id: &str) {
     }
 
     let origin_id = ContentManipulationService::get_origin().unwrap_or("".into());
-    Assets::move_contents(
+    AssetsService::move_contents(
         MOVING_ACCOUNT,
         if id.is_empty() { &origin_id } else { id.into() },
         0,

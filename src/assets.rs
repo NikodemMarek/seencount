@@ -25,30 +25,24 @@ impl Default for Assets {
     }
 }
 impl Assets {
-    pub(crate) fn set_assets(new_assets: Assets) {
-        Self::with_mut(|service| {
-            service.0 = Assets::default().0;
-            service.0.extend(new_assets.0)
-        })
+    fn set_assets(&mut self, new_assets: Assets) {
+        self.0 = Assets::default().0;
+        self.0.extend(new_assets.0);
     }
 
-    pub(crate) fn get_asset_by_id(id: &str) -> Option<Asset> {
-        Self::with(|service| service.0.get(id).cloned())
+    fn get_asset_by_id(&self, id: &str) -> Option<&Asset> {
+        self.0.get(id)
     }
 
-    pub(crate) fn move_contents(from_id: &str, to_id: &str, content_index: usize) {
-        Self::with_mut(|service| {
-            service
-                .0
-                .get_mut(from_id)
-                .map(|asset| asset.remove(content_index))
-                .inspect(|content| {
-                    service
-                        .0
-                        .entry(to_id.into())
-                        .and_modify(|asset| asset.add_contents([content.clone()]));
-                });
-        });
+    fn move_contents(&mut self, from_id: &str, to_id: &str, content_index: usize) {
+        self.0
+            .get_mut(from_id)
+            .map(|asset| asset.remove(content_index))
+            .inspect(|content| {
+                self.0
+                    .entry(to_id.into())
+                    .and_modify(|asset| asset.add_contents([content.clone()]));
+            });
     }
 }
 
@@ -183,4 +177,24 @@ impl Container for ContainerAsset {
 pub struct Content {
     pub(crate) asset: Box<str>,
     pub(crate) quantity: usize,
+}
+
+#[derive(Default)]
+pub(crate) struct AssetsService {
+    assets: Assets,
+}
+impl AssetsService {
+    pub(crate) fn set_assets(new_assets: Assets) {
+        Self::with_mut(|service| service.assets.set_assets(new_assets));
+    }
+
+    pub(crate) fn get_asset_by_id(id: &str) -> Option<Asset> {
+        Self::with(|service| service.assets.get_asset_by_id(id).cloned())
+    }
+
+    pub(crate) fn move_contents(from_id: &str, to_id: &str, content_index: usize) {
+        Self::with_mut(|service| {
+            service.assets.move_contents(from_id, to_id, content_index);
+        });
+    }
 }
