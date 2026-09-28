@@ -210,4 +210,8 @@ impl AssetsService {
             };
         });
     }
+
+    pub fn get_directives() -> Box<str> {
+        "TODO".into()
+    }
 }

@@ -57,12 +57,22 @@ export function fetchCb(res, cb) {
         .then(data => cb(data))
         .catch(err => console.error(err));
 }
+export function copyToClipboard(content) {
+    navigator.clipboard
+        .writeText(content)
+        .catch(err => console.error(err));
+}
+export function sleepCb(miliseconds, cb) {
+    setTimeout(() => cb(), miliseconds);
+}
 "#)]
 extern "C" {
     fn dispatchUiChanged();
     fn dispatchPreviewChanged(filename: &str);
 
     fn fetchCb(res: &str, cb: &Closure<dyn FnMut(JsValue)>);
+    fn copyToClipboard(content: &str);
+    fn sleepCb(miliseconds: usize, cb: &Closure<dyn FnMut()>);
 }
 
 #[wasm_bindgen]
@@ -95,8 +105,9 @@ pub fn render() -> String {
         LocationState::Selected(index) => LocationSelectorComponent::render(Some(index)),
         LocationState::Previewed(index) => {
             let location = Locations::get_location(index).unwrap();
+            let is_copied = AppStateService::is_copied();
             SidePanelComponent::render().to_string()
-                + &BottomBarComponent::render(&location.beancount_id, &location.name)
+                + &BottomBarComponent::render(&location.beancount_id, &location.name, is_copied)
         }
     }
 }
@@ -131,6 +142,7 @@ enum LocationState {
 pub(crate) struct AppStateService {
     location_state: LocationState,
     selected_ids: HashSet<Box<str>>,
+    is_copied: bool,
 }
 impl AppStateService {
     pub(crate) fn get_selected_ids() -> HashSet<Box<str>> {
@@ -154,5 +166,12 @@ impl AppStateService {
             }
             s @ LocationState::NotSelected | s @ LocationState::Previewed(_) => None,
         })
+    }
+
+    pub fn set_copied(is_copied: bool) {
+        Self::with_mut(|service| service.is_copied = is_copied);
+    }
+    pub fn is_copied() -> bool {
+        Self::with(|service| service.is_copied)
     }
 }
