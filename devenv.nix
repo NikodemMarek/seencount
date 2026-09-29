@@ -1,7 +1,14 @@
-{pkgs, ...}: {
+{
+  inputs,
+  pkgs,
+  ...
+}: let
+  rustledger = inputs.rustledger.packages.${pkgs.stdenv.system}.default;
+in {
   packages = [
     pkgs.wasm-pack
     pkgs.esbuild
+    rustledger
   ];
 
   languages = {

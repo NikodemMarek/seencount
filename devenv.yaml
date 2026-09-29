@@ -7,3 +7,5 @@ inputs:
     inputs:
       nixpkgs:
         follows: nixpkgs
+  rustledger:
+    url: github:NikodemMarek/rustledger
