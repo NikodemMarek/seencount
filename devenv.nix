@@ -1,6 +1,7 @@
 {
   inputs,
   pkgs,
+  lib,
   ...
 }: let
   rustledger = inputs.rustledger.packages.${pkgs.stdenv.system}.default;
@@ -46,5 +47,19 @@ in {
         extensions = ["py"];
       };
     };
+  };
+
+  containers."app" = {
+    name = "app";
+    version = "latest";
+    copyToRoot = [
+      ./server.py
+      ./index.html
+      ./script.js
+    ];
+    startupCommand = ''
+      export RUSTLEDGER=${lib.getExe rustledger}
+      ${lib.getExe pkgs.python3} server.py
+    '';
   };
 }
