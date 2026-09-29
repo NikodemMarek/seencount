@@ -8,7 +8,7 @@ ENV_VARS = os.environ.copy()
 ASSET_DIR = os.environ.get("ASSET_DIR", os.environ.get("ASSETS_DIR", "."))
 PROGRAM_DIR = os.environ.get("PROGRAM_DIR", os.environ.get("STATIC_DIR", os.environ.get("WEB_DIR", ".")))
 
-BEANCOUNT_FILE = os.environ.get("BEANCOUNT_FILE", os.path.join(ASSET_DIR, "locations.beancount"))
+BEANCOUNT_FILE = os.environ.get("BEANCOUNT_FILE", os.path.join(ASSET_DIR, "main.beancount"))
 
 ACCOUNTS_METADATA_COMMAND = "SELECT accounts, meta FROM #entries WHERE type = 'open' and accounts ~ 'Assets:Locations'"
 

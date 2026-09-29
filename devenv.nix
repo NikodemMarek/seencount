@@ -54,6 +54,7 @@ in {
     copyToRoot = [
       ./server.py
       ./index.html
+      ./style.css
       ./script.js
     ];
     startupCommand = ''

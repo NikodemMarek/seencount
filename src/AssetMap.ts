@@ -1,5 +1,4 @@
 declare var L: typeof import('leaflet');
-import { get_type_by_id, get_details_by_id, select_id } from '../pkg/seencount';
 
 const METERS_PER_DEGREE = 111320;
 
@@ -24,8 +23,7 @@ function scaleObjectCoordinate(coord: number[], originLat: number, originLng: nu
     const xMeters = rawX * cosR - rawY * sinR;
     const yMeters = rawX * sinR + rawY * cosR;
 
-    const latOffset = yMeters / METERS_PER_DEGREE;
-    const cosLat = Math.cos((originLat * Math.PI) / 180.0);
+    const latOffset = yMeters / METERS_PER_DEGREE; const cosLat = Math.cos((originLat * Math.PI) / 180.0);
     const lngOffset = xMeters / (METERS_PER_DEGREE * (Math.abs(cosLat) > 0.0001 ? cosLat : 1.0));
 
     return [originLng + lngOffset, originLat + latOffset];
@@ -63,7 +61,7 @@ function getStyle(id: string | null) {
         };
     }
 
-    const type = get_type_by_id(id);
+    const type = document.get_type_by_id(id);
 
     switch (type) {
         case "property":
@@ -90,7 +88,7 @@ function getStyle(id: string | null) {
 }
 
 function createPopup(id: string) {
-    const label = get_details_by_id(id);
+    const label = document.get_details_by_id(id);
     // This actually no longer makes much sense, leaving for reference.
     // const contents = isContainer(asset) && asset.contents.length !== 0
     //     ? `Contains: ${asset.contents.map(asset => `${asset.quantity} ${asset.asset}`).join(',')}`
@@ -201,7 +199,7 @@ export class AssetMap extends HTMLElement {
                 layer.on('click', (e: L.LeafletEvent) => {
                     L.DomEvent.stopPropagation(e);
 
-                    select_id(id || feature?.id || '');
+                    document.select_id(id || feature?.id || '');
                 });
             }
         });

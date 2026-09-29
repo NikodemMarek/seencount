@@ -1,4 +1,4 @@
-import init, { handle_content_drag, handle_content_hover, handle_content_drop, select_location, change_location, preview_location, select_id, copy_directives, render, load } from '../pkg/seencount';
+import init, { handle_content_drag, handle_content_hover, handle_content_drop, select_location, change_location, preview_location, select_id, copy_directives, get_type_by_id, get_details_by_id, render, load } from '../pkg/seencount';
 import wasmBytes from '../pkg/seencount_bg.wasm';
 import './AssetMap.ts';
 import './DraggableElement';
@@ -50,5 +50,7 @@ document.change_location = change_location;
 document.select_id = select_id;
 document.preview_location = preview_location;
 document.copy_directives = copy_directives;
+document.get_type_by_id = get_type_by_id;
+document.get_details_by_id = get_details_by_id;
 
 run();
