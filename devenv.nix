@@ -4,6 +4,13 @@
   ...
 }: let
   rustledger = inputs.rustledger.packages.${pkgs.stdenv.system}.default;
+  server = pkgs.stdenv.mkDerivation {
+    name = "seencount-server";
+    src = ./.;
+    buildInputs = [ pkgs.cargo ];
+    buildPhase = "cargo build --release --bin server";
+    installPhase = "install -Dm755 target/release/server $out/bin/server";
+  };
 in {
   packages = [
     pkgs.wasm-pack
@@ -16,7 +23,7 @@ in {
       enable = true;
       lsp.enable = true;
     };
-    python.enable = true;
+
     rust = {
       lsp.enable = true;
       enable = true;
@@ -40,10 +47,10 @@ in {
       };
     };
     backend = {
-      exec = "python3 server.py";
+      exec = "cargo run --bin server";
       watch = {
-        paths = [./server.py];
-        extensions = ["py"];
+        paths = [./src/server];
+        extensions = ["rs"];
       };
     };
   };
@@ -52,14 +59,13 @@ in {
     name = "app";
     version = "latest";
     copyToRoot = [
-      ./server.py
       ./index.html
       ./style.css
       ./script.js
     ];
     startupCommand = ''
       export RUSTLEDGER=${rustledger}/bin/rledger
-      ${pkgs.python3}/bin/python3 server.py
+      ${server}/bin/server
     '';
   };
 }
