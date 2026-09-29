@@ -47,4 +47,18 @@ in {
       };
     };
   };
+
+  containers."app" = {
+    name = "app";
+    version = "latest";
+    copyToRoot = [
+      ./server.py
+      ./index.html
+      ./script.js
+    ];
+    startupCommand = ''
+      export RUSTLEDGER=${rustledger}/bin/rledger
+      ${pkgs.python3}/bin/python3 server.py
+    '';
+  };
 }
