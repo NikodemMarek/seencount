@@ -63,9 +63,6 @@ in {
       ./style.css
       ./script.js
     ];
-    startupCommand = ''
-      export RUSTLEDGER=${rustledger}/bin/rledger
-      ${server}/bin/server
-    '';
+    startupCommand = "${server}/bin/server";
   };
 }

@@ -4,7 +4,6 @@ pub struct AppState {
     pub asset_dir: PathBuf,
     pub program_dir: PathBuf,
     pub beancount_file: PathBuf,
-    pub rledger_bin: String,
 }
 
 impl AppState {
@@ -24,8 +23,6 @@ impl AppState {
             .map(PathBuf::from)
             .unwrap_or_else(|_| asset_dir.join("main.beancount"));
 
-        let rledger_bin = std::env::var("RUSTLEDGER").unwrap_or_else(|_| "rledger".into());
-
-        Self { asset_dir, program_dir, beancount_file, rledger_bin }
+        Self { asset_dir, program_dir, beancount_file }
     }
 }
